@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@sunny/shared": "1.0.0",
+    "@tiptap/core": "^3.6.6",
     "@tiptap/extension-image": "^3.6.6",
     "@tiptap/extension-link": "^3.6.6",
     "@tiptap/react": "^3.6.6",
