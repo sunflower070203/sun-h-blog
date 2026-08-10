@@ -6,9 +6,10 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { useParams } from "react-router-dom";
 import { api } from "../api";
+import { Gallery } from "../admin/editor/Gallery";
 
 function ArticleBody({ post }: { post: PostDetail }) {
-  const editor = useEditor({ extensions: [StarterKit, Image, Link], content: post.content, editable: false });
+  const editor = useEditor({ extensions: [StarterKit, Image, Gallery, Link], content: post.content, editable: false });
   return <EditorContent editor={editor} />;
 }
 

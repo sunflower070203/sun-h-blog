@@ -234,3 +234,50 @@ footer { display: flex; justify-content: space-between; }
   .post-grid { grid-template-columns: 1fr; }
   .inner-page, .article-page { padding: 130px 22px 70px; }
 }
+
+/* Research index layout */
+.public-layout { min-height: 100vh; }
+.public-stage { margin-left: 220px; }
+.site-header {
+  position: fixed; inset: 0 auto 0 0; width: 220px; height: 100vh;
+  display: flex; flex-direction: column; align-items: stretch; padding: 34px 28px;
+  color: var(--ink); border: 0; border-right: 1px solid var(--line); border-radius: 0;
+  background: rgba(244,241,233,.88); backdrop-filter: blur(18px); box-shadow: none;
+}
+.brand { font: 600 17px Georgia,serif; letter-spacing: .05em; }
+.brand span { display: block; margin-top: 5px; color: var(--ocean); font: 600 9px/1 sans-serif; letter-spacing: .18em; }
+.site-header nav { display: flex; flex-direction: column; gap: 18px; margin-top: 90px; font-size: 12px; letter-spacing: .08em; }
+.nav-cta { margin-top: auto; font-size: 11px; }
+.index-hero { min-height: 720px; display: grid; grid-template-columns: 1.05fr .95fr; border-bottom: 1px solid var(--line); }
+.index-intro { display: flex; flex-direction: column; justify-content: center; padding: 90px 7vw; }
+.index-intro .kicker { color: var(--ocean); }
+.index-intro h1 { margin: 0 0 30px; color: var(--ink); font: 400 clamp(64px,8vw,126px)/.88 Georgia,"Songti SC",serif; letter-spacing: -.06em; }
+.index-intro h1 em { color: var(--ocean); font-weight: 400; }
+.index-intro .hero-intro { color: var(--muted); }
+.index-intro .button.primary { color: white; background: var(--navy); border-color: var(--navy); }
+.index-intro .button.ghost { color: var(--ink); border-color: var(--line); background: rgba(255,255,255,.5); }
+.index-portrait { position: relative; min-height: 620px; background: linear-gradient(90deg,rgba(6,27,42,.1),rgba(6,27,42,.02)),url("/sailboat.png") center/cover no-repeat; }
+.index-caption { position: absolute; right: 28px; bottom: 28px; left: 28px; padding: 20px; color: white; border-radius: 10px; }
+.index-caption span,.index-caption small { display: block; color: rgba(255,255,255,.62); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.index-caption strong { display: block; margin: 7px 0; font: 400 20px Georgia,serif; }
+.research-index { border-top: 1px solid var(--ink); }
+.research-index .interest-card { display: grid; grid-template-columns: 70px 1fr auto; gap: 22px; align-items: start; min-height: 0; padding: 32px 8px; border: 0; border-bottom: 1px solid var(--line); }
+.research-index .interest-card h3 { margin: 0 0 10px; }
+.research-index .interest-card p { max-width: 680px; margin: 0; }
+.research-index .interest-card b { color: var(--ocean); font-size: 10px; font-weight: 600; letter-spacing: .08em; }
+.prose .image-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; max-width: 1040px; margin: 40px -140px; }
+.prose .image-gallery img { width: 100%; height: 100%; max-height: 520px; object-fit: cover; }
+
+@media (max-width: 800px) {
+  .public-stage { margin-left: 0; padding-top: 76px; }
+  .site-header { position: fixed; inset: 12px 14px auto; width: auto; height: 58px; padding: 0 18px; flex-direction: row; align-items: center; border: 1px solid var(--line); border-radius: 12px; }
+  .brand span,.site-header nav { display: none; }
+  .nav-cta { margin: 0 0 0 auto; }
+  .index-hero { grid-template-columns: 1fr; }
+  .index-intro { padding: 72px 24px; }
+  .index-intro h1 { font-size: 68px; }
+  .index-portrait { min-height: 420px; }
+  .research-index .interest-card { grid-template-columns: 38px 1fr; }
+  .research-index .interest-card b { display: none; }
+  .prose .image-gallery { grid-template-columns: 1fr; margin: 30px 0; }
+}

@@ -11,35 +11,31 @@ export function HomePage() {
 
   return (
     <main>
-      <section className="hero">
-        <div className="hero-bg" />
-        <div className="hero-overlay" />
-        <div className="hero-content">
+      <section className="index-hero">
+        <div className="index-intro">
           <p className="kicker">{site.school} <span>/</span> {site.role}</p>
-          <h1>向未知航行，<br /><em>也记录沿途。</em></h1>
+          <h1>Research<br /><em>first.</em></h1>
           <p className="hero-intro">{site.intro}</p>
           <div className="hero-actions">
-            <a className="button primary" href="#research">查看研究方向 ↗</a>
-            <Link className="button ghost" to="/posts">阅读全部文章</Link>
+            <a className="button primary" href="#research">进入研究索引 ↘</a>
+            <Link className="button ghost" to="/posts">阅读文章</Link>
           </div>
         </div>
-        <div className="hero-meta glass">
-          <div><span>Current focus</span><strong>学习如何提出更好的问题</strong></div>
-          <div><span>Base</span><strong>南京 · 东南大学</strong></div>
-          <div><span>Status</span><strong className="status">持续探索中</strong></div>
+        <div className="index-portrait" role="img" aria-label="海面上的帆船">
+          <div className="glass index-caption"><span>Current position</span><strong>南京 · 东南大学</strong><small>持续探索中</small></div>
         </div>
       </section>
 
       <section className="section" id="research">
-        <div className="section-label">01 / Research</div>
+        <div className="section-label">01 / Current research index</div>
         <div className="section-heading">
           <h2>不是展示答案，<br />而是记录问题如何展开。</h2>
           <p>目前仍在建立研究基础。这里会诚实记录阅读、实验、复现与失败，而不是提前包装成熟成果。</p>
         </div>
-        <div className="interest-grid">
+        <div className="research-index">
           {interests.map(([index, title, description]) => (
             <article className="interest-card" key={index}>
-              <span>{index}</span><h3>{title}</h3><p>{description}</p>
+              <span>{index}</span><div><h3>{title}</h3><p>{description}</p></div><b>Open thread ↗</b>
             </article>
           ))}
         </div>
