@@ -7,6 +7,9 @@ import Image from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
+import { Gallery } from "./editor/Gallery";
+import { documentToMarkdown, markdownToDocument } from "./editor/markdown";
+import { MultiImagePanel } from "./editor/MultiImagePanel";
 
 const emptyDocument = { type: "doc", content: [{ type: "paragraph" }] };
 
@@ -30,9 +33,11 @@ export function PostEditorPage() {
   const [message, setMessage] = useState("自动保存已开启");
   const [dirty, setDirty] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [mode, setMode] = useState<"rich" | "markdown">(restored?.mode ?? "rich");
+  const [markdownDraft, setMarkdownDraft] = useState(restored?.markdownDraft ?? "");
 
   const editor = useEditor({
-    extensions: [StarterKit, Image, LinkExtension.configure({ openOnClick: false })],
+    extensions: [StarterKit, Image, Gallery, LinkExtension.configure({ openOnClick: false })],
     content: restored?.content ?? emptyDocument,
     onUpdate: () => setDirty(true)
   });
@@ -48,8 +53,8 @@ export function PostEditorPage() {
 
   const snapshot = useCallback(() => ({
     title, slug, excerpt, category, tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-    coverUrl, coverAlt, featured, content: editor?.getJSON() ?? emptyDocument
-  }), [title, slug, excerpt, category, tags, coverUrl, coverAlt, featured, editor]);
+    coverUrl, coverAlt, featured, content: editor?.getJSON() ?? emptyDocument, mode, markdownDraft
+  }), [title, slug, excerpt, category, tags, coverUrl, coverAlt, featured, editor, mode, markdownDraft]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -67,8 +72,10 @@ export function PostEditorPage() {
   }, [dirty]);
 
   function input(nextStatus = status): PostInput {
+    const content = mode === "markdown" ? markdownToDocument(markdownDraft) : (editor?.getJSON() ?? emptyDocument);
     return {
       ...snapshot(),
+      content,
       slug: slug || slugify(title),
       status: nextStatus
     };
@@ -91,6 +98,54 @@ export function PostEditorPage() {
     catch (reason) { setMessage(reason instanceof Error ? reason.message : "上传失败"); }
   }
 
+  function showMarkdown() {
+    if (mode === "markdown") return;
+    const exported = documentToMarkdown(editor?.getJSON() ?? emptyDocument);
+    if (exported.warnings.length) {
+      setMessage(exported.warnings.join("；"));
+      return;
+    }
+    setMarkdownDraft(exported.markdown);
+    setMode("markdown");
+  }
+
+  function showRichText() {
+    if (mode === "rich") return;
+    try {
+      const document = markdownToDocument(markdownDraft);
+      editor?.commands.setContent(document);
+      setMode("rich");
+      setDirty(true);
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : "Markdown 转换失败");
+    }
+  }
+
+  async function importMarkdown(file?: File) {
+    if (!file) return;
+    try {
+      const markdown = await file.text();
+      const document = markdownToDocument(markdown);
+      localStorage.setItem(`${draftKey}-before-import`, JSON.stringify(snapshot()));
+      setMarkdownDraft(markdown);
+      editor?.commands.setContent(document);
+      setMode("markdown");
+      setDirty(true);
+      setMessage("Markdown 已导入，原正文已保留恢复快照");
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : "Markdown 导入失败");
+    }
+  }
+
+  function openPreview() {
+    try {
+      if (mode === "markdown") editor?.commands.setContent(markdownToDocument(markdownDraft));
+      setPreview(true);
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : "预览生成失败");
+    }
+  }
+
   async function remove() {
     if (!id || !confirm("确定删除这篇文章？此操作不可恢复。")) return;
     await api.deletePost(id); navigate("/admin");
@@ -102,7 +157,7 @@ export function PostEditorPage() {
         <Link to="/admin">← 文章管理</Link>
         <span>{message}</span>
         <div>
-          <button className="admin-button" onClick={() => setPreview(true)}>预览</button>
+          <button className="admin-button" onClick={openPreview}>预览</button>
           <button className="admin-button" onClick={() => save("draft")}>{status === "published" ? "撤回为草稿" : "保存草稿"}</button>
           <button className="admin-button primary" onClick={() => save("published")}>发布文章</button>
         </div>
@@ -111,6 +166,12 @@ export function PostEditorPage() {
         <section className="editor-main">
           <input className="title-input" value={title} onChange={(event) => { setTitle(event.target.value); if (!slug) setSlug(slugify(event.target.value)); setDirty(true); }} placeholder="文章标题" />
           <input className="excerpt-input" value={excerpt} onChange={(event) => { setExcerpt(event.target.value); setDirty(true); }} placeholder="用一两句话概括文章…" />
+          <div className="editor-modebar">
+            <button className={mode === "rich" ? "active" : ""} onClick={showRichText}>富文本</button>
+            <button className={mode === "markdown" ? "active" : ""} onClick={showMarkdown}>Markdown</button>
+            <label>导入 .md<input hidden type="file" accept=".md,text/markdown,text/plain" onChange={(event) => void importMarkdown(event.target.files?.[0])} /></label>
+          </div>
+          {mode === "rich" ? <>
           <div className="toolbar">
             <button onClick={() => editor?.chain().focus().toggleBold().run()} className={editor?.isActive("bold") ? "active" : ""}>B</button>
             <button onClick={() => editor?.chain().focus().toggleItalic().run()}><i>I</i></button>
@@ -120,6 +181,8 @@ export function PostEditorPage() {
             <button onClick={() => editor?.chain().focus().toggleCodeBlock().run()}>{"</>"}</button>
           </div>
           <EditorContent editor={editor} className="rich-editor" />
+          <MultiImagePanel editor={editor} onMessage={setMessage} />
+          </> : <textarea className="markdown-editor" value={markdownDraft} onChange={(event) => { setMarkdownDraft(event.target.value); setDirty(true); }} aria-label="Markdown 正文" />}
         </section>
         <aside className="editor-settings">
           <h2>发布设置</h2>
