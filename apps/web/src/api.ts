@@ -1,4 +1,4 @@
-import type { PostDetail, PostInput, PostSummary } from "@sunny/shared";
+import type { AdminPostPage, PostDetail, PostInput, PostStatus, PostSummary, SiteSettings } from "@sunny/shared";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const csrfToken = document.cookie.split("; ").find((item) => item.startsWith("sunny_csrf="))?.split("=")[1];
@@ -25,13 +25,23 @@ export const api = {
   getPost: (slug: string) => request<PostDetail>(`/posts/${slug}`),
   login: (email: string, password: string) => request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   logout: () => request("/auth/logout", { method: "POST" }),
-  listAdminPosts: () => request<PostSummary[]>("/admin/posts"),
+  listAdminPosts: (query = "") => request<AdminPostPage>(`/admin/posts${query}`),
   getAdminPost: (id: string) => request<PostDetail>(`/admin/posts/${id}`),
   createPost: (input: PostInput) => request<PostDetail>("/admin/posts", { method: "POST", body: JSON.stringify(input) }),
   updatePost: (id: string, input: PostInput) => request<PostDetail>(`/admin/posts/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   publishPost: (id: string) => request<PostDetail>(`/admin/posts/${id}/publish`, { method: "POST" }),
   unpublishPost: (id: string) => request<PostDetail>(`/admin/posts/${id}/unpublish`, { method: "POST" }),
+  copyPost: (id: string) => request<PostDetail>(`/admin/posts/${id}/copy`, { method: "POST" }),
+  batchPostStatus: (ids: string[], status: PostStatus) => request<PostDetail[]>("/admin/posts/batch-status", {
+    method: "POST",
+    body: JSON.stringify({ ids, status })
+  }),
   deletePost: (id: string) => request<void>(`/admin/posts/${id}`, { method: "DELETE" }),
+  getSettings: () => request<SiteSettings>("/admin/settings"),
+  updateSettings: (settings: SiteSettings) => request<SiteSettings>("/admin/settings", {
+    method: "PUT",
+    body: JSON.stringify(settings)
+  }),
   upload: (file: File) => {
     const form = new FormData();
     form.append("file", file);

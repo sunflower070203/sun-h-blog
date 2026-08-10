@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { listPublicPosts, publishPost } from "./posts.ts";
+import { batchStatusValues, copyPostValues, listPublicPosts, publishPost } from "./posts.ts";
 
 const records = [
   { id: "1", title: "draft", slug: "draft", status: "draft" as const, publishedAt: null },
@@ -16,5 +16,22 @@ describe("post service policy", () => {
     const published = publishPost(records[0]!, new Date("2026-01-01T00:00:00Z"));
     assert.equal(published.status, "published");
     assert.equal(published.publishedAt?.toISOString(), "2026-01-01T00:00:00.000Z");
+  });
+
+  it("copies a published post back to a draft", () => {
+    const copy = copyPostValues(records[1]!);
+    assert.equal(copy.title, "live（副本）");
+    assert.equal(copy.slug, "live-copy");
+    assert.equal(copy.status, "draft");
+    assert.equal(copy.publishedAt, null);
+  });
+
+  it("clears the publication date when withdrawing posts", () => {
+    const now = new Date("2026-08-10T12:00:00Z");
+    assert.deepEqual(batchStatusValues("draft", now), {
+      status: "draft",
+      publishedAt: null,
+      updatedAt: now
+    });
   });
 });

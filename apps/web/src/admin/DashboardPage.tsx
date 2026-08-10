@@ -8,7 +8,7 @@ export function DashboardPage() {
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [error, setError] = useState("");
   useEffect(() => {
-    api.listAdminPosts().then(setPosts).catch((reason) => {
+    api.listAdminPosts().then((page) => setPosts(page.items)).catch((reason) => {
       if (reason.message === "请先登录") navigate("/admin/login");
       else setError(reason.message);
     });
