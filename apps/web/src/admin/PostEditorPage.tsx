@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { PostInput } from "@sunny/shared";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import type { PostInput, SiteSettings } from "@sunny/shared";
 import { slugify } from "@sunny/shared";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -35,6 +35,7 @@ export function PostEditorPage() {
   const [preview, setPreview] = useState(false);
   const [mode, setMode] = useState<"rich" | "markdown">(restored?.mode ?? "rich");
   const [markdownDraft, setMarkdownDraft] = useState(restored?.markdownDraft ?? "");
+  const [appearance, setAppearance] = useState<SiteSettings | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit, Image, Gallery, LinkExtension.configure({ openOnClick: false })],
@@ -50,6 +51,8 @@ export function PostEditorPage() {
       setDirty(false);
     }).catch((reason) => reason.message === "请先登录" ? navigate("/admin/login") : setMessage(reason.message));
   }, [editor, id, isNew, navigate]);
+
+  useEffect(() => { api.getSettings().then(setAppearance).catch(() => undefined); }, []);
 
   const snapshot = useCallback(() => ({
     title, slug, excerpt, category, tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
@@ -151,8 +154,15 @@ export function PostEditorPage() {
     await api.deletePost(id); navigate("/admin");
   }
 
+  const appearanceStyle = appearance?.wallpaperUrl ? {
+    "--admin-wallpaper": `url("${appearance.wallpaperUrl}")`,
+    "--admin-overlay": appearance.overlay,
+    "--admin-blur": `${appearance.blur}px`,
+    "--admin-position": appearance.position
+  } as CSSProperties : undefined;
+
   return (
-    <main className="editor-shell">
+    <main className={`editor-shell ${appearance?.wallpaperUrl ? "has-wallpaper" : ""}`} style={appearanceStyle}>
       <header className="editor-top">
         <Link to="/admin">← 文章管理</Link>
         <span>{message}</span>

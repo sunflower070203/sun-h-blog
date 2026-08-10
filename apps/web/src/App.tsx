@@ -8,6 +8,7 @@ const PostPage = lazy(() => import("./pages/PostPage").then((module) => ({ defau
 const LoginPage = lazy(() => import("./admin/LoginPage").then((module) => ({ default: module.LoginPage })));
 const DashboardPage = lazy(() => import("./admin/DashboardPage").then((module) => ({ default: module.DashboardPage })));
 const PostEditorPage = lazy(() => import("./admin/PostEditorPage").then((module) => ({ default: module.PostEditorPage })));
+const AppearancePage = lazy(() => import("./admin/AppearancePage").then((module) => ({ default: module.AppearancePage })));
 
 function Public({ children }: { children: React.ReactNode }) {
   return <Shell>{children}</Shell>;
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/posts/:slug" element={<Public><PostPage /></Public>} />
           <Route path="/admin/login" element={<LoginPage />} />
           <Route path="/admin" element={<DashboardPage />} />
+          <Route path="/admin/appearance" element={<AppearancePage />} />
           <Route path="/admin/posts/new" element={<PostEditorPage />} />
           <Route path="/admin/posts/:id" element={<PostEditorPage />} />
         </Routes>
