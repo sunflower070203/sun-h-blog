@@ -11,8 +11,15 @@
 - 封面图片上传、分类、标签、置顶
 - 浏览器本地自动保存，避免意外丢稿
 - PostgreSQL 持久化
-- 火山引擎 TOS 图片存储
+- Docker 命名卷中的本地图片存储
 - Docker Compose 一键部署
+- 科研索引式首页与响应式文章图集
+- 后台文章搜索、筛选、分页、复制和批量发布/撤回
+- 富文本与 Markdown 双模式写作
+- 多图片拖放上传、逐张插入或生成图集
+- 仅管理员可见的自定义后台壁纸
+
+Markdown 模式支持标题、段落、粗体、斜体、链接、图片、引用、列表和围栏代码块。图集等富文本专属结构会阻止无提示的有损切换，并提示回到富文本模式处理。
 
 ## 目录
 
@@ -63,26 +70,19 @@ docker compose up -d --build
 docker compose exec api npm run admin:create -w @sunny/api
 ```
 
-5. 浏览器打开服务器 IP；管理入口为 `/admin`。
+5. 浏览器打开服务器的 `8080` 端口；管理入口为 `/admin`。
 
-## 火山引擎部署
+## 云服务器部署
 
-### 1. 准备 ECS
+### 1. 准备服务器
 
-- 推荐 2 核 4 GB、Ubuntu 22.04 或更新版本。
-- 安全组开放 `22`、`80`、`443`。
+- 当前部署已适配腾讯云 OpenCloudOS 9；其他能运行 Docker Engine 与 Compose Plugin 的 Linux 发行版也可使用。
+- 当前博客使用 `8080`，安全组需开放 `22` 和 `8080`。域名接入后，再按反向代理方案开放 `80`、`443`。
 - 安装 Docker Engine 与 Docker Compose Plugin。
 
-### 2. 配置 TOS
+图片保存在 Docker 命名卷 `media_data`，无需对象存储密钥。不要把 `.env` 上传到 GitHub，也不要执行 `docker compose down -v`。
 
-1. 在对象存储 TOS 创建桶。
-2. 建议使用单独的子账号访问密钥，只授予该桶的上传权限。
-3. 配置允许公开读取上传对象，或绑定 CDN/自定义域名。
-4. 将 Endpoint、Region、Bucket、访问密钥和公开域名写入服务器 `.env`。
-
-不要把 `.env` 上传到 GitHub。
-
-### 3. 上传并启动
+### 2. 上传并启动
 
 ```bash
 git clone <你的仓库地址> sunny-blog
@@ -93,11 +93,11 @@ docker compose up -d --build
 docker compose exec api npm run admin:create -w @sunny/api
 ```
 
-### 4. 域名与 HTTPS
+### 3. 域名与 HTTPS
 
-将域名 A 记录指向 ECS 公网 IP。推荐在宿主机使用 Caddy 或火山引擎负载均衡终止 HTTPS，再转发到本项目的 `80` 端口。启用 HTTPS 后，管理 Cookie 会自动使用 Secure 模式。
+将域名 A 记录指向服务器公网 IP。完成备案后，在宿主机增加按域名匹配的 Nginx/Caddy 反向代理，将 HTTPS 请求转发到本项目的 `8080` 端口。HTTPS 真正启用后，将 `.env` 中的 `COOKIE_SECURE` 改为 `true` 并重新创建 API 容器。
 
-### 5. 更新
+### 4. 更新
 
 ```bash
 git pull
@@ -111,10 +111,10 @@ docker compose up -d --build
 数据库：
 
 ```bash
-docker compose exec postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > sunny-blog-backup.sql
+docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > sunny-blog-backup.sql
 ```
 
-TOS 图片应开启版本控制或生命周期备份。文章删除不会自动删除 TOS 对象，避免仍被其他文章引用的图片失效。
+图片位于 `media_data` 命名卷，应与数据库一起定期备份。文章删除不会自动删除图片，避免仍被其他文章引用的图片失效。
 
 ## 上传 GitHub
 
@@ -148,7 +148,6 @@ apps/web/public/sailboat.png
 ## 安全提醒
 
 - 管理员密码至少 12 位，`SESSION_SECRET` 至少 32 个随机字符。
-- 不要使用主账号的火山引擎访问密钥。
 - 不要提交 `.env`。
-- 定期更新依赖、备份 PostgreSQL 和 TOS。
+- 定期更新依赖、备份 PostgreSQL 和 `media_data`。
 - 公开部署前务必配置 HTTPS。
