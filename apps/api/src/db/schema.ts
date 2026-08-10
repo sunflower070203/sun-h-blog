@@ -1,4 +1,4 @@
-import { boolean, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const admins = pgTable("admins", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -44,4 +44,13 @@ export const media = pgTable("media", {
   contentType: text("content_type").notNull(),
   alt: text("alt").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const siteSettings = pgTable("site_settings", {
+  id: text("id").primaryKey(),
+  wallpaperUrl: text("wallpaper_url"),
+  overlay: real("overlay").notNull(),
+  blur: real("blur").notNull(),
+  position: text("position", { enum: ["center", "top", "bottom"] }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
