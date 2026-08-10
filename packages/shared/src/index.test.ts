@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { postInputSchema, slugify } from "./index.ts";
+import { adminPostQuerySchema, postInputSchema, siteSettingsInputSchema, slugify } from "./index.ts";
 
 describe("post input", () => {
   it("rejects a post without a title", () => {
@@ -35,5 +35,20 @@ describe("post input", () => {
     });
 
     assert.equal(result.success, true);
+  });
+});
+
+describe("admin contracts", () => {
+  it("keeps wallpaper controls inside readable bounds", () => {
+    const settings = siteSettingsInputSchema.parse({ wallpaperUrl: null, overlay: 0.1, blur: 8, position: "center" });
+    assert.equal(settings.overlay, 0.35);
+  });
+
+  it("coerces pagination query parameters", () => {
+    assert.deepEqual(adminPostQuerySchema.parse({ page: "2", pageSize: "20", status: "draft" }), {
+      page: 2,
+      pageSize: 20,
+      status: "draft"
+    });
   });
 });
