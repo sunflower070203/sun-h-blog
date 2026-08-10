@@ -1,0 +1,23 @@
+{
+  "name": "sunny-blog-fullstack",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,cyan \"npm run dev -w @sunny/api\" \"npm run dev -w @sunny/web\"",
+    "build": "npm run build -w @sunny/shared && npm run build -w @sunny/api && npm run build -w @sunny/web",
+    "test": "node --experimental-strip-types packages/shared/src/index.test.ts && node --experimental-strip-types apps/web/src/admin/admin-css.test.ts && node --experimental-strip-types apps/api/src/auth.test.ts && node --experimental-strip-types apps/api/src/services/posts.test.ts && node --experimental-strip-types apps/api/src/services/media.test.ts",
+    "typecheck": "npm run build -w @sunny/shared && npm run typecheck -w @sunny/api && npm run typecheck -w @sunny/web",
+    "db:generate": "npm run db:generate -w @sunny/api",
+    "db:migrate": "npm run db:migrate -w @sunny/api",
+    "admin:create": "npm run admin:create -w @sunny/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3",
+    "yaml": "^2.9.0"
+  }
+}
