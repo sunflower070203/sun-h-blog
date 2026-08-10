@@ -10,6 +10,7 @@ data/
 media/
 work/
 .superpowers/
+.worktrees/
 *.sql
 !apps/api/drizzle/*.sql
 *.tar.gz
