@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the current React/Vite, Fastify, Drizzle/PostgreSQL, local-media, and Docker Compose structure. Add one server-side `site_settings` record, focused post-management endpoints, pure editor conversion/upload helpers, and small React components rather than expanding the existing page files indefinitely. TipTap JSON remains the only persisted article body; Markdown is an import/editing projection converted at explicit mode boundaries.
 
-**Tech Stack:** React 19, React Router 7, TipTap 3, `@tiptap/markdown` 3.6.6, Fastify 5, Drizzle ORM, PostgreSQL 17, TypeScript 5.9, Node test runner, Vite, Docker Compose, Nginx.
+**Tech Stack:** React 19, React Router 7, TipTap 3, a dependency-free scoped Markdown converter, Fastify 5, Drizzle ORM, PostgreSQL 17, TypeScript 5.9, Node test runner, Vite, Docker Compose, Nginx.
 
 ---
 
@@ -267,34 +267,26 @@ git add apps/api/src apps/web/src/api.ts
 git commit -m "feat: add efficient post management APIs"
 ```
 
-### Task 5: Build the Markdown conversion boundary
+### Task 5: Build the dependency-free Markdown conversion boundary
 
 **Files:**
-- Modify: `apps/web/package.json`
-- Modify: `package-lock.json`
 - Create: `apps/web/src/admin/editor/markdown.ts`
 - Create: `apps/web/src/admin/editor/markdown.test.ts`
 - Modify: `package.json`
 
-- [ ] **Step 1: Add the official matching TipTap dependency**
-
-Run: `npm install @tiptap/markdown@3.6.6 -w @sunny/web`
-
-Expected: package and lockfile change without unrelated upgrades.
-
-- [ ] **Step 2: Write failing round-trip tests**
+- [ ] **Step 1: Write failing round-trip tests**
 
 Test headings, lists, code blocks, blockquotes, links, and images. Require `markdownToDocument(markdown)` to return TipTap JSON and `documentToMarkdown(doc)` to preserve the same semantic constructs. Add one gallery fixture and require the serializer to return `{markdown, warnings:["图集需要在富文本模式编辑"]}` rather than silently losing it.
 
-- [ ] **Step 3: Run and observe the missing module**
+- [ ] **Step 2: Run and observe the missing module**
 
 Run: `node --experimental-strip-types apps/web/src/admin/editor/markdown.test.ts`
 
 Expected: FAIL because `markdown.ts` is missing.
 
-- [ ] **Step 4: Implement the boundary**
+- [ ] **Step 3: Implement the boundary**
 
-Use `@tiptap/markdown` with the same StarterKit/Image/Link extension set as the editor. Export only:
+Implement a small line-oriented parser and JSON serializer for headings, paragraphs, bold, italic, links, images, blockquotes, ordered/unordered lists, and fenced code blocks. Export only:
 
 ```ts
 export type MarkdownExport = { markdown: string; warnings: string[] };
@@ -304,16 +296,16 @@ export function documentToMarkdown(document: Record<string, unknown>): MarkdownE
 
 Reject parser exceptions without mutating editor state; detect gallery nodes before serialization and return an explicit warning.
 
-- [ ] **Step 5: Add the test to `npm test` and verify**
+- [ ] **Step 4: Add the test to `npm test` and verify**
 
 Run: `npm test; npm run typecheck`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```powershell
-git add package.json package-lock.json apps/web
+git add package.json apps/web docs/superpowers/plans/2026-08-10-research-index-editor-redesign.md
 git commit -m "feat: add markdown editing conversion"
 ```
 
