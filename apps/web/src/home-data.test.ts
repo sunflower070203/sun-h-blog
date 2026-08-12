@@ -25,6 +25,7 @@ const profile: PublicProfile = {
   bio: "Profile bio",
   links: [],
   aboutContent: emptyRichDocument,
+  introContent: emptyRichDocument,
 };
 
 describe("loadHomeData", () => {
@@ -53,6 +54,7 @@ describe("loadHomeData", () => {
       bio: "",
       links: [],
       aboutContent: emptyRichDocument,
+      introContent: emptyRichDocument,
     });
   });
 });

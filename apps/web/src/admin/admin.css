@@ -50,3 +50,6 @@
 .preview-excerpt { color:#718089; font-size:17px; line-height:1.8; }
 .preview-close { position:sticky; top:0; float:right; padding:9px 12px; border:1px solid rgba(20,40,50,.14); border-radius:7px; background:white; cursor:pointer; }
 @media(max-width:800px){.admin-shell{display:block}.admin-sidebar{position:static;height:auto;flex-direction:row;align-items:center}.admin-sidebar nav{display:none}.admin-sidebar button{margin:0 0 0 auto}.admin-content{padding:34px 20px}.admin-top{align-items:center}.stats{grid-template-columns:1fr}.admin-filters{grid-template-columns:1fr}.admin-row{grid-template-columns:auto 1fr}.row-actions{grid-column:2}.profile-link-row{grid-template-columns:1fr}.editor-top{grid-template-columns:1fr auto;row-gap:8px}.editor-top>span{display:block;grid-column:1/-1;grid-row:2}.editor-layout{grid-template-columns:1fr}.editor-main{padding:44px 20px;border-right:0}.editor-settings{padding:30px 20px}.title-input{font-size:42px}.upload-row{grid-template-columns:1fr auto auto}.upload-row input{grid-column:1/-1}.image-gallery{grid-template-columns:1fr}}
+
+.profile-card select { width:100%; padding:12px; margin-top:7px; border:1px solid rgba(20,40,50,.14); border-radius:7px; background:rgba(255,255,255,.88); color:var(--admin-ink); font:inherit; }
+.profile-intro-editor { margin-bottom:28px; }

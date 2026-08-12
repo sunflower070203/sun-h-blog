@@ -17,4 +17,10 @@ describe("shared rich document", () => {
     assert.match(source, /RichDocument/);
     assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
   });
+
+  it("synchronizes asynchronously loaded document content", () => {
+    const source = readFileSync(new URL("./components/RichDocument.tsx", import.meta.url), "utf8");
+    assert.match(source, /useEffect/);
+    assert.match(source, /commands\.setContent\(content/);
+  });
 });

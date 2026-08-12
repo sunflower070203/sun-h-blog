@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { api } from "../api";
 import { PostCard } from "../components/PostCard";
 import { RichDocument } from "../components/RichDocument";
+import { ProfileLinkIcon } from "../components/ProfileLinkIcon";
 import { applyHomeData, emptyProfile, loadHomeData, selectPinnedPosts } from "../home-data";
 
 export function HomePage() {
@@ -25,34 +26,30 @@ export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: Pu
 
   return (
     <main className="home-layout">
-      <header className="profile-sidebar">
+      <aside className="profile-sidebar">
         {profile.avatarUrl && <img src={profile.avatarUrl} alt={profile.displayName} />}
         <h1>{profile.displayName}</h1>
-      </header>
-
-      <div className="home-content">
-        <section className="home-section profile-readme">
           <h2>简介</h2>
-          <RichDocument content={profile.aboutContent} />
-        </section>
+          <RichDocument content={profile.introContent} />
 
-        <section className="home-section external-links-section">
           <h2>外部链接</h2>
           {profile.links.length > 0 ? (
           <div className="profile-links">
             {profile.links.map((link, index) => (
               <a href={link.url} target="_blank" rel="noopener noreferrer" key={`${link.title}-${link.url}-${index}`}>
-                <strong>{link.title}</strong>
-                {link.description && <span>{link.description}</span>}
+                <ProfileLinkIcon icon={link.icon} />
+                <span className="profile-link-copy"><strong>{link.title}</strong>{link.description && <small>{link.description}</small>}</span>
               </a>
             ))}
           </div>
           ) : <p className="empty-state">还没有添加外部链接。</p>}
-        </section>
+      </aside>
+
+      <div className="home-content">
 
         <section className="home-section pinned-section">
           <p className="section-label">Pinned</p>
-          <h2>置顶文章</h2>
+          <h2>置顶文章 / 项目</h2>
           {pinnedPosts.length > 0
             ? <div className="post-grid">{pinnedPosts.map((post) => <PostCard post={post} key={post.id} />)}</div>
             : <p className="empty-state">还没有置顶文章。</p>}

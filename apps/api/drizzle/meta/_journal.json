@@ -29,6 +29,13 @@
       "when": 1786545000000,
       "tag": "0003_about_content",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786548600000,
+      "tag": "0004_home_intro",
+      "breakpoints": true
     }
   ]
 }

@@ -11,7 +11,8 @@ export const defaultPublicProfile: PublicProfile = {
   avatarUrl: null,
   bio: "",
   links: [],
-  aboutContent: emptyRichDocument
+  aboutContent: emptyRichDocument,
+  introContent: emptyRichDocument
 };
 
 export const defaultSiteSettings: SiteSettings = {

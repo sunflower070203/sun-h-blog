@@ -4,7 +4,7 @@ import { emptyRichDocument } from "@sunny/shared";
 import { buildApp } from "../app.ts";
 import { createProfileHandlers } from "./profile-handlers.ts";
 
-const defaultPublicProfile = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument };
+const defaultPublicProfile = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument };
 const defaultSiteSettings = { wallpaperUrl: null, overlay: 0.62, blur: 8, position: "center" as const };
 
 class FakeReply {
@@ -63,6 +63,7 @@ describe("profile routes", () => {
       bio: "Notes",
       links: [],
       aboutContent: { type: "doc", content: [{ type: "paragraph" }] },
+      introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Short intro" }] }] },
       wallpaperUrl: "/private-wallpaper.png",
       overlay: 0.7,
       blur: 10,
@@ -85,7 +86,8 @@ describe("profile routes", () => {
         avatarUrl: null,
         bio: "Notes",
         links: [],
-        aboutContent: { type: "doc", content: [{ type: "paragraph" }] }
+        aboutContent: { type: "doc", content: [{ type: "paragraph" }] },
+        introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Short intro" }] }] }
       });
 
       assert.equal((await app.inject({ method: "GET", url: "/api/admin/profile" })).statusCode, 401);
@@ -103,6 +105,7 @@ describe("profile routes", () => {
       bio: "Notes",
       links: [],
       aboutContent: { type: "doc", content: [{ type: "paragraph" }] },
+      introContent: emptyRichDocument,
       wallpaperUrl: "/media/2026-08-11/123e4567-e89b-12d3-a456-426614174000.png",
       overlay: 0.7,
       blur: 10,
@@ -113,7 +116,8 @@ describe("profile routes", () => {
       avatarUrl: null,
       bio: "Notes",
       links: [],
-      aboutContent: { type: "doc", content: [{ type: "paragraph" }] }
+      aboutContent: { type: "doc", content: [{ type: "paragraph" }] },
+      introContent: emptyRichDocument
     });
   });
 
@@ -130,7 +134,7 @@ describe("profile routes", () => {
 
   it("includes appearance defaults when inserting the singleton row", async () => {
     const { handlers, writes } = await setup();
-    const body = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument };
+    const body = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument };
 
     await handlers.put({ body }, new FakeReply());
 
@@ -139,7 +143,7 @@ describe("profile routes", () => {
 
   it("updates only profile fields and the timestamp on conflict", async () => {
     const { handlers, writes } = await setup([{}]);
-    const body = { displayName: "Sunny", avatarUrl: null, bio: "Updated", links: [], aboutContent: emptyRichDocument };
+    const body = { displayName: "Sunny", avatarUrl: null, bio: "Updated", links: [], aboutContent: emptyRichDocument, introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Independent" }] }] } };
 
     await handlers.put({ body }, new FakeReply());
 

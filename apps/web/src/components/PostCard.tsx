@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 export function PostCard({ post }: { post: PostSummary }) {
   return (
     <article className="post-card">
+      {post.tags.includes("项目") && <span className="project-badge">项目</span>}
       <time>{post.publishedAt?.slice(0, 10)}</time>
       <h3><Link to={`/posts/${post.slug}`}>{post.title}</Link></h3>
       <p>{post.excerpt}</p>

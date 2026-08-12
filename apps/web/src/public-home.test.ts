@@ -123,10 +123,10 @@ describe("public home content contract", () => {
   it("renders optional profile fields conditionally without replacement biography copy", () => {
     assert.match(homePage, /profile\.avatarUrl\s*&&\s*<img\b/);
     assert.doesNotMatch(homePage, /profile\.bio/);
-    assert.match(homePage, /<RichDocument\s+content=\{profile\.aboutContent\}/);
+    assert.match(homePage, /<RichDocument\s+content=\{profile\.introContent\}/);
     assert.match(homePage, /<h2>简介<\/h2>/);
     assert.match(homePage, /<h2>外部链接<\/h2>/);
-    assert.ok(homePage.indexOf("个人介绍") < homePage.indexOf("外部链接"));
+    assert.ok(homePage.indexOf("profile-sidebar") < homePage.indexOf("home-content"));
   });
 
   it("keeps the navigation label but removes the duplicate About page heading", () => {

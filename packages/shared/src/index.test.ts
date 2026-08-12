@@ -73,10 +73,31 @@ describe("public profile contract", () => {
       links: [{
         title: "GitHub",
         url: "https://github.com/sunny",
-        description: "Code and projects"
+        description: "Code and projects",
+        icon: "link"
       }],
-      aboutContent: emptyRichDocument
+      aboutContent: emptyRichDocument,
+      introContent: emptyRichDocument
     });
+  });
+
+  it("accepts the compact homepage intro and preset link icons", () => {
+    const introContent = { type: "doc", content: [{ type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Research" }] }] }] }] };
+    const profile = publicProfileInputSchema.parse({ displayName: "Sunny", avatarUrl: null, bio: "", links: [{ title: "GitHub", url: "https://github.com/sunny", icon: "github" }], introContent });
+    assert.equal(profile.links[0]?.icon, "github");
+    assert.deepEqual(profile.introContent, introContent);
+  });
+
+  it("rejects unsupported intro nodes and content longer than 600 characters", () => {
+    const heading = publicProfileInputSchema.safeParse({ displayName: "Sunny", avatarUrl: null, bio: "", links: [], introContent: { type: "doc", content: [{ type: "heading", attrs: { level: 2 } }] } });
+    const longText = publicProfileInputSchema.safeParse({ displayName: "Sunny", avatarUrl: null, bio: "", links: [], introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "x".repeat(601) }] }] } });
+    assert.equal(heading.success, false);
+    assert.equal(longText.success, false);
+  });
+
+  it("rejects unknown profile link icons", () => {
+    const result = publicProfileInputSchema.safeParse({ displayName: "Sunny", avatarUrl: null, bio: "", links: [{ title: "Site", url: "https://example.com", icon: "custom" }] });
+    assert.equal(result.success, false);
   });
 
   it("accepts a TipTap document for the editable about page", () => {

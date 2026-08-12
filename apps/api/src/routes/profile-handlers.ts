@@ -4,13 +4,14 @@ export type SettingsDatabase = Pick<typeof import("../db/index.js").db, "select"
 export type SettingsTable = typeof import("../db/schema.js").siteSettings;
 
 function toPublicProfile(settings: PublicProfile): PublicProfile {
-  return {
+  return publicProfileInputSchema.parse({
     displayName: settings.displayName,
     avatarUrl: settings.avatarUrl,
     bio: settings.bio,
     links: settings.links,
-    aboutContent: settings.aboutContent
-  };
+    aboutContent: settings.aboutContent,
+    introContent: settings.introContent
+  });
 }
 
 export function createProfileHandlers(
