@@ -101,7 +101,8 @@ p, h1, h2, h3 { margin-top: 0; }
 .profile-links span { font-size: 13px; }
 .home-content { min-width: 0; }
 .profile-readme .prose { max-width:none; margin:0; }
-.external-links-section .profile-links { margin-top:0; }
+.external-links-section .profile-links { grid-template-columns: 1fr; margin-top: 0; }
+.external-links-section .profile-links a { width: 100%; min-width: 0; }
 .home-section { padding: 0 0 64px; scroll-margin-top: 88px; border-bottom: 1px solid var(--line); }
 .home-section + .home-section { padding-top: 64px; }
 .home-content h2 { margin-bottom: 30px; font: 400 clamp(30px, 4vw, 46px)/1.25 Georgia, "Songti SC", serif; letter-spacing: -.02em; }

@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 const homePage = readFileSync(new URL("./pages/HomePage.tsx", import.meta.url), "utf8");
+const aboutPage = readFileSync(new URL("./pages/AboutPage.tsx", import.meta.url), "utf8");
 const shell = readFileSync(new URL("./components/Shell.tsx", import.meta.url), "utf8");
 const postCard = readFileSync(new URL("./components/PostCard.tsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
@@ -123,9 +124,15 @@ describe("public home content contract", () => {
     assert.match(homePage, /profile\.avatarUrl\s*&&\s*<img\b/);
     assert.doesNotMatch(homePage, /profile\.bio/);
     assert.match(homePage, /<RichDocument\s+content=\{profile\.aboutContent\}/);
-    assert.match(homePage, /<h2>个人介绍<\/h2>/);
+    assert.match(homePage, /<h2>简介<\/h2>/);
     assert.match(homePage, /<h2>外部链接<\/h2>/);
     assert.ok(homePage.indexOf("个人介绍") < homePage.indexOf("外部链接"));
+  });
+
+  it("keeps the navigation label but removes the duplicate About page heading", () => {
+    assert.match(shell, />个人介绍<\/NavLink>/);
+    assert.doesNotMatch(aboutPage, /<header className="page-title">/);
+    assert.doesNotMatch(aboutPage, /<h1>个人介绍<\/h1>/);
   });
 
   it("keeps PostCard limited to the approved article fields", () => {

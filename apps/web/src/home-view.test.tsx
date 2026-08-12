@@ -49,7 +49,7 @@ describe("HomeView server rendering", () => {
     assert.match(html, /class="site-header"/);
     assert.match(html, /<h2>置顶文章<\/h2>/);
     assert.match(html, /还没有置顶文章。/);
-    assert.match(html, /<h2>个人介绍<\/h2>/);
+    assert.match(html, /<h2>简介<\/h2>/);
     assert.match(html, /<h2>外部链接<\/h2>/);
     assert.doesNotMatch(html, /<h2>(?:科研学习|日常生活)<\/h2>/);
   });
@@ -60,6 +60,8 @@ describe("HomeView server rendering", () => {
     assert.equal((html.match(/target="_blank"/g) ?? []).length, 2);
     assert.equal((html.match(/rel="noopener noreferrer"/g) ?? []).length, 2);
     assert.ok(html.includes("First") && html.includes("Second"));
+    assert.ok(html.indexOf("First") < html.indexOf("Second"));
+    assert.equal((html.match(/class="profile-links"/g) ?? []).length, 1);
   });
 
   it("actually renders PostCard and preserves duplicate tags", async () => {

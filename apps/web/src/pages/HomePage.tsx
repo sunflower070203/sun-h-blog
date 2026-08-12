@@ -32,7 +32,7 @@ export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: Pu
 
       <div className="home-content">
         <section className="home-section profile-readme">
-          <h2>个人介绍</h2>
+          <h2>简介</h2>
           <RichDocument content={profile.aboutContent} />
         </section>
 
