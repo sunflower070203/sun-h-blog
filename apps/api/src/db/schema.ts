@@ -1,4 +1,5 @@
 import { boolean, jsonb, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import type { ProfileLink } from "@sunny/shared";
 
 export const admins = pgTable("admins", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -48,6 +49,11 @@ export const media = pgTable("media", {
 
 export const siteSettings = pgTable("site_settings", {
   id: text("id").primaryKey(),
+  displayName: text("display_name").notNull().default("Sunny"),
+  avatarUrl: text("avatar_url"),
+  bio: text("bio").notNull().default(""),
+  links: jsonb("links").$type<ProfileLink[]>().notNull().default([]),
+  aboutContent: jsonb("about_content").$type<Record<string, unknown>>().notNull().default({ type: "doc", content: [{ type: "paragraph" }] }),
   wallpaperUrl: text("wallpaper_url"),
   overlay: real("overlay").notNull(),
   blur: real("blur").notNull(),

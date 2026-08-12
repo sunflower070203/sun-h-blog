@@ -15,6 +15,20 @@
       "when": 1786374600000,
       "tag": "0001_site_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786458600000,
+      "tag": "0002_public_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786545000000,
+      "tag": "0003_about_content",
+      "breakpoints": true
     }
   ]
 }

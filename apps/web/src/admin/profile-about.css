@@ -1,0 +1,8 @@
+.profile-about-editor { padding:28px 0; margin:8px 0 28px; border-top:1px solid rgba(20,40,50,.12); }
+.profile-about-editor h2 { margin:0; font:400 23px Georgia,"Songti SC",serif; }
+.profile-about-editor>p { color:#718089; font-size:12px; }
+.readme-import { display:inline-flex !important; width:auto; padding:9px 13px; margin:4px 0 14px !important; border:1px solid rgba(20,40,50,.14); border-radius:7px; background:#fff; cursor:pointer; }.readme-import input { display:none; }
+.profile-about-toolbar { display:flex; flex-wrap:wrap; gap:5px; padding:8px; margin:18px 0 12px; border:1px solid rgba(20,40,50,.12); border-radius:8px; background:#fff; }
+.profile-about-toolbar button { min-width:38px; padding:8px; border:0; border-radius:5px; background:transparent; cursor:pointer; }
+.profile-about-toolbar button:hover { background:#e8eef0; }
+.profile-about-editor .tiptap { min-height:320px; padding:20px; outline:0; border:1px solid rgba(20,40,50,.14); border-radius:8px; background:#fff; font:16px/1.9 Georgia,"Songti SC",serif; }

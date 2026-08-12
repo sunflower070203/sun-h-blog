@@ -2,12 +2,9 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 import type { PostInput, SiteSettings } from "@sunny/shared";
 import { slugify } from "@sunny/shared";
 import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import LinkExtension from "@tiptap/extension-link";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
-import { Gallery } from "./editor/Gallery";
+import { createEditorExtensions } from "./editor/editor-extensions";
 import { documentToMarkdown, markdownToDocument } from "./editor/markdown";
 import { MultiImagePanel } from "./editor/MultiImagePanel";
 
@@ -38,7 +35,7 @@ export function PostEditorPage() {
   const [appearance, setAppearance] = useState<SiteSettings | null>(null);
 
   const editor = useEditor({
-    extensions: [StarterKit, Image, Gallery, LinkExtension.configure({ openOnClick: false })],
+    extensions: createEditorExtensions({ openLinksOnClick: false }),
     content: restored?.content ?? emptyDocument,
     onUpdate: () => setDirty(true)
   });

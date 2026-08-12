@@ -2,9 +2,43 @@ import { z } from "zod";
 
 export const postStatusSchema = z.enum(["draft", "published"]);
 
+export const localMediaUrlSchema = z.string().regex(/^\/media\/\d{4}-\d{2}-\d{2}\/[0-9a-f-]+\.(?:jpe?g|png|webp|gif)$/i);
+
+export const httpUrlSchema = z.string().trim().max(500).refine((value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "链接必须使用 http 或 https");
+
+export const profileLinkSchema = z.object({
+  title: z.string().trim().min(1).max(80),
+  url: httpUrlSchema,
+  description: z.string().trim().max(160).default("")
+});
+
+export const emptyRichDocument: Record<string, unknown> = {
+  type: "doc",
+  content: [{ type: "paragraph" }]
+};
+
+export const richDocumentSchema = z.record(z.unknown()).refine((value) => (
+  value.type === "doc" && (value.content === undefined || Array.isArray(value.content))
+), "个人介绍必须是有效的富文本文档");
+
+export const publicProfileInputSchema = z.object({
+  displayName: z.string().trim().min(1).max(80),
+  avatarUrl: z.union([localMediaUrlSchema, z.null()]),
+  bio: z.string().trim().max(600),
+  links: z.array(profileLinkSchema).max(12),
+  aboutContent: richDocumentSchema.default(emptyRichDocument)
+});
+
 export const siteSettingsInputSchema = z.object({
   wallpaperUrl: z.union([
-    z.string().regex(/^\/media\/\d{4}-\d{2}-\d{2}\/[0-9a-f-]+\.(?:jpe?g|png|webp|gif)$/i),
+    localMediaUrlSchema,
     z.null()
   ]),
   overlay: z.coerce.number().transform((value) => Math.min(0.9, Math.max(0.35, value))),
@@ -34,7 +68,7 @@ export const postInputSchema = z.object({
   tags: z.array(z.string().trim().min(1).max(30)).max(12),
   coverUrl: z.union([
     z.string().url(),
-    z.string().regex(/^\/media\/\d{4}-\d{2}-\d{2}\/[0-9a-f-]+\.(?:jpe?g|png|webp|gif)$/i)
+    localMediaUrlSchema
   ]).nullable().optional(),
   coverAlt: z.string().trim().max(160).default(""),
   featured: z.boolean().default(false),
@@ -44,6 +78,8 @@ export const postInputSchema = z.object({
 export type PostInput = z.infer<typeof postInputSchema>;
 export type PostStatus = z.infer<typeof postStatusSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsInputSchema>;
+export type ProfileLink = z.infer<typeof profileLinkSchema>;
+export type PublicProfile = z.infer<typeof publicProfileInputSchema>;
 
 export type PostSummary = {
   id: string;

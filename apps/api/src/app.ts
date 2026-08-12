@@ -10,7 +10,7 @@ import { config } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { mediaRoutes } from "./routes/media.js";
 import { postRoutes } from "./routes/posts.js";
-import { settingsRoutes } from "./routes/settings.js";
+import { settingsRoutes, type SettingsRouteOptions } from "./routes/settings.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -18,7 +18,7 @@ declare module "fastify" {
   }
 }
 
-export async function buildApp() {
+export async function buildApp(overrides: { settings?: SettingsRouteOptions } = {}) {
   const app = Fastify({ logger: true, trustProxy: true, bodyLimit: 2 * 1024 * 1024 });
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cookie);
@@ -47,6 +47,6 @@ export async function buildApp() {
   await app.register(authRoutes, { prefix: "/api" });
   await app.register(postRoutes, { prefix: "/api" });
   await app.register(mediaRoutes, { prefix: "/api" });
-  await app.register(settingsRoutes, { prefix: "/api" });
+  await app.register(settingsRoutes, { prefix: "/api", ...overrides.settings });
   return app;
 }

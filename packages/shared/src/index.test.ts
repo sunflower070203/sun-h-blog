@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { adminPostQuerySchema, postInputSchema, siteSettingsInputSchema, slugify } from "./index.ts";
+import { adminPostQuerySchema, emptyRichDocument, postInputSchema, publicProfileInputSchema, siteSettingsInputSchema, slugify } from "./index.ts";
 
 describe("post input", () => {
   it("rejects a post without a title", () => {
@@ -50,5 +50,75 @@ describe("admin contracts", () => {
       pageSize: 20,
       status: "draft"
     });
+  });
+});
+
+describe("public profile contract", () => {
+  it("trims profile text and accepts local avatars with https links", () => {
+    const profile = publicProfileInputSchema.parse({
+      displayName: "  Sunny  ",
+      avatarUrl: "/media/2026-08-11/550e8400-e29b-41d4-a716-446655440000.png",
+      bio: "  Research notes and life updates.  ",
+      links: [{
+        title: "  GitHub  ",
+        url: "  https://github.com/sunny  ",
+        description: "  Code and projects  "
+      }]
+    });
+
+    assert.deepEqual(profile, {
+      displayName: "Sunny",
+      avatarUrl: "/media/2026-08-11/550e8400-e29b-41d4-a716-446655440000.png",
+      bio: "Research notes and life updates.",
+      links: [{
+        title: "GitHub",
+        url: "https://github.com/sunny",
+        description: "Code and projects"
+      }],
+      aboutContent: emptyRichDocument
+    });
+  });
+
+  it("accepts a TipTap document for the editable about page", () => {
+    const aboutContent = {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "About Sunny" }] }]
+    };
+
+    const profile = publicProfileInputSchema.parse({
+      displayName: "Sunny",
+      avatarUrl: null,
+      bio: "",
+      links: [],
+      aboutContent
+    });
+
+    assert.deepEqual(profile.aboutContent, aboutContent);
+  });
+
+  it("rejects non-document about content", () => {
+    const result = publicProfileInputSchema.safeParse({
+      displayName: "Sunny",
+      avatarUrl: null,
+      bio: "",
+      links: [],
+      aboutContent: { type: "paragraph", content: [] }
+    });
+
+    assert.equal(result.success, false);
+  });
+
+  it("rejects javascript links", () => {
+    const result = publicProfileInputSchema.safeParse({
+      displayName: "Sunny",
+      avatarUrl: null,
+      bio: "",
+      links: [{ title: "Unsafe", url: "javascript:alert(1)" }]
+    });
+
+    assert.equal(result.success, false);
+    if (!result.success) {
+      assert.equal(result.error.issues[0]?.message, "链接必须使用 http 或 https");
+    }
   });
 });
