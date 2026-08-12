@@ -4,7 +4,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { AdminFrame } from "./AdminFrame";
-import { createEditorExtensions } from "./editor/editor-extensions";
+import { createEditorExtensions, createIntroEditorExtensions } from "./editor/editor-extensions";
 import { MultiImagePanel } from "./editor/MultiImagePanel";
 import { markdownToDocument } from "./editor/markdown";
 import "./profile-about.css";
@@ -14,6 +14,7 @@ import {
   canSaveProfile,
   createEmptyProfileLink,
   createProfileLinks,
+  iconOptions,
   removeProfileLink,
   serializeProfileLinks,
   updateProfileLink,
@@ -33,17 +34,23 @@ export function ProfilePage() {
     content: emptyRichDocument,
     onUpdate: () => setMessage("个人介绍有未保存的修改")
   });
+  const introEditor = useEditor({
+    extensions: createIntroEditorExtensions({ openLinksOnClick: false }),
+    content: emptyRichDocument,
+    onUpdate: () => setMessage("首页简介有未保存的修改")
+  });
 
   useEffect(() => {
     api.getAdminProfile().then((loaded) => {
       setProfile(loaded);
       setLinks(createProfileLinks(loaded.links));
       aboutEditor?.commands.setContent(loaded.aboutContent ?? emptyRichDocument);
+      introEditor?.commands.setContent(loaded.introContent ?? emptyRichDocument);
     }).catch((reason) => {
       if (reason instanceof Error && reason.message === "请先登录") navigate("/admin/login");
       else setMessage(reason instanceof Error ? reason.message : "加载失败");
     }).finally(() => setLoading(false));
-  }, [aboutEditor, navigate]);
+  }, [aboutEditor, introEditor, navigate]);
 
   async function uploadAvatar(file?: File) {
     if (!file) return;
@@ -69,7 +76,7 @@ export function ProfilePage() {
     setSaving(true);
     setMessage("正在保存…");
     try {
-      const saved = await api.updateProfile({ ...profile, links: serializeProfileLinks(links), aboutContent: aboutEditor?.getJSON() ?? emptyRichDocument });
+      const saved = await api.updateProfile({ ...profile, links: serializeProfileLinks(links), introContent: introEditor?.getJSON() ?? emptyRichDocument, aboutContent: aboutEditor?.getJSON() ?? emptyRichDocument });
       setProfile(saved);
       setLinks(createProfileLinks(saved.links));
       setMessage("个人资料已保存");
@@ -97,6 +104,15 @@ export function ProfilePage() {
           <label>头像<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={(event) => void handleAvatarChange(event)} /></label>
           {profile.avatarUrl && <img className="profile-avatar-preview" src={profile.avatarUrl} alt="头像预览" />}
           <label>个人简介<textarea rows={5} value={profile.bio} onChange={(event) => setProfile({ ...profile, bio: event.target.value })} /></label>
+          <section className="profile-about-editor profile-intro-editor">
+            <h2>首页简介</h2>
+            <p>显示在首页左栏，支持粗体、链接和无序列表，最多 600 字。</p>
+            <div className="profile-about-toolbar" aria-label="首页简介格式工具">
+              <button type="button" onClick={() => introEditor?.chain().focus().toggleBold().run()}>B</button>
+              <button type="button" onClick={() => introEditor?.chain().focus().toggleBulletList().run()}>列表</button>
+            </div>
+            <EditorContent editor={introEditor} />
+          </section>
           <div className="profile-links">
             <div className="profile-links-heading"><h2>外部链接</h2><button className="admin-button" type="button" disabled={!canAddProfileLink(links)} onClick={() => setLinks((current) => canAddProfileLink(current) ? [...current, createEmptyProfileLink()] : current)}>新增链接</button></div>
             {!canAddProfileLink(links) && <p className="profile-links-limit" role="status">最多添加 {MAX_PROFILE_LINKS} 个链接</p>}
@@ -104,6 +120,7 @@ export function ProfilePage() {
               <label>链接标题<input value={link.title} onChange={(event) => setLinks((current) => updateProfileLink(current, link.uiId, "title", event.target.value))} /></label>
               <label>链接地址<input type="url" value={link.url} onChange={(event) => setLinks((current) => updateProfileLink(current, link.uiId, "url", event.target.value))} /></label>
               <label>链接说明<input value={link.description} onChange={(event) => setLinks((current) => updateProfileLink(current, link.uiId, "description", event.target.value))} /></label>
+              <label>图标<select value={link.icon} onChange={(event) => setLinks((current) => updateProfileLink(current, link.uiId, "icon", event.target.value as typeof link.icon))}>{iconOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>
               <button className="admin-button" type="button" onClick={() => setLinks((current) => removeProfileLink(current, link.uiId))}>删除</button>
             </div>)}
           </div>

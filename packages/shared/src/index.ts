@@ -13,10 +13,13 @@ export const httpUrlSchema = z.string().trim().max(500).refine((value) => {
   }
 }, "链接必须使用 http 或 https");
 
+export const profileLinkIconSchema = z.enum(["github", "email", "website", "scholar", "orcid", "linkedin", "link"]);
+
 export const profileLinkSchema = z.object({
   title: z.string().trim().min(1).max(80),
   url: httpUrlSchema,
-  description: z.string().trim().max(160).default("")
+  description: z.string().trim().max(160).default(""),
+  icon: profileLinkIconSchema.default("link")
 });
 
 export const emptyRichDocument: Record<string, unknown> = {
@@ -28,12 +31,40 @@ export const richDocumentSchema = z.record(z.unknown()).refine((value) => (
   value.type === "doc" && (value.content === undefined || Array.isArray(value.content))
 ), "个人介绍必须是有效的富文本文档");
 
+const introNodeTypes = new Set(["doc", "paragraph", "text", "bulletList", "listItem"]);
+const introMarkTypes = new Set(["bold", "link"]);
+
+function validateIntroNode(value: unknown): { valid: boolean; textLength: number } {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { valid: false, textLength: 0 };
+  const node = value as Record<string, unknown>;
+  if (typeof node.type !== "string" || !introNodeTypes.has(node.type)) return { valid: false, textLength: 0 };
+  if (node.type === "text" && typeof node.text !== "string") return { valid: false, textLength: 0 };
+  if (node.marks !== undefined) {
+    if (!Array.isArray(node.marks) || node.marks.some((mark) => !mark || typeof mark !== "object" || !introMarkTypes.has((mark as Record<string, unknown>).type as string))) return { valid: false, textLength: 0 };
+  }
+  if (node.content !== undefined && !Array.isArray(node.content)) return { valid: false, textLength: 0 };
+  let textLength = node.type === "text" ? (node.text as string).length : 0;
+  for (const child of (node.content as unknown[] | undefined) ?? []) {
+    const result = validateIntroNode(child);
+    if (!result.valid) return result;
+    textLength += result.textLength;
+  }
+  return { valid: node.type !== "doc" || Array.isArray(node.content), textLength };
+}
+
+export const introContentSchema = z.record(z.unknown()).superRefine((value, context) => {
+  const result = validateIntroNode(value);
+  if (!result.valid) context.addIssue({ code: "custom", message: "首页简介包含不支持的格式" });
+  if (result.textLength > 600) context.addIssue({ code: "custom", message: "首页简介不能超过 600 个字符" });
+});
+
 export const publicProfileInputSchema = z.object({
   displayName: z.string().trim().min(1).max(80),
   avatarUrl: z.union([localMediaUrlSchema, z.null()]),
   bio: z.string().trim().max(600),
   links: z.array(profileLinkSchema).max(12),
-  aboutContent: richDocumentSchema.default(emptyRichDocument)
+  aboutContent: richDocumentSchema.default(emptyRichDocument),
+  introContent: introContentSchema.default(emptyRichDocument)
 });
 
 export const siteSettingsInputSchema = z.object({
@@ -79,6 +110,7 @@ export type PostInput = z.infer<typeof postInputSchema>;
 export type PostStatus = z.infer<typeof postStatusSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsInputSchema>;
 export type ProfileLink = z.infer<typeof profileLinkSchema>;
+export type ProfileLinkIcon = z.infer<typeof profileLinkIconSchema>;
 export type PublicProfile = z.infer<typeof publicProfileInputSchema>;
 
 export type PostSummary = {

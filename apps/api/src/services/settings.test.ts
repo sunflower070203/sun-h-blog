@@ -26,7 +26,8 @@ describe("public profile", () => {
       avatarUrl: null,
       bio: "",
       links: [],
-      aboutContent: emptyRichDocument
+      aboutContent: emptyRichDocument,
+      introContent: emptyRichDocument
     });
   });
 

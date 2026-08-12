@@ -6,6 +6,7 @@ export const emptyProfile: PublicProfile = {
   bio: "",
   links: [],
   aboutContent: emptyRichDocument,
+  introContent: emptyRichDocument,
 };
 
 type HomeDataApi = {

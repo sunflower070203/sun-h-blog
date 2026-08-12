@@ -94,14 +94,21 @@ p, h1, h2, h3 { margin-top: 0; }
 .profile-sidebar { align-self: start; position: sticky; top: 96px; }
 .profile-sidebar > img { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 1px solid var(--line); }
 .profile-sidebar > h1 { margin: 22px 0 12px; font: 400 31px/1.2 Georgia, "Songti SC", serif; }
+.profile-sidebar > h2 { margin: 30px 0 12px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .08em; }
+.profile-sidebar .prose { margin: 0; font-size: 14px; line-height: 1.75; }
 .profile-sidebar > p, .profile-links span, .home-content > section > p { color: var(--muted); line-height: 1.75; }
 .profile-links { display: grid; margin-top: 28px; border-bottom: 1px solid var(--line); }
-.profile-links a { display: grid; gap: 4px; padding: 14px 0; border-top: 1px solid var(--line); transition: color 140ms ease, transform 140ms ease; }
+.profile-links a { display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: start; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); transition: color 140ms ease, transform 140ms ease; }
 .profile-links a:hover { color: var(--ocean); transform: translateX(2px); }
 .profile-links span { font-size: 13px; }
+.profile-link-icon { width: 18px; height: 18px; margin-top: 1px; color: var(--muted); }
+.profile-link-copy { display: grid; gap: 2px; min-width: 0; }
+.profile-link-copy small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.project-badge { display: inline-block; margin-bottom: 8px; padding: 3px 7px; border: 1px solid var(--ocean); border-radius: 999px; color: var(--ocean); font-size: 10px; letter-spacing: .08em; }
 .home-content { min-width: 0; }
 .profile-readme .prose { max-width:none; margin:0; }
-.external-links-section .profile-links { margin-top:0; }
+.external-links-section .profile-links { grid-template-columns: 1fr; margin-top: 0; }
+.external-links-section .profile-links a { width: 100%; min-width: 0; }
 .home-section { padding: 0 0 64px; scroll-margin-top: 88px; border-bottom: 1px solid var(--line); }
 .home-section + .home-section { padding-top: 64px; }
 .home-content h2 { margin-bottom: 30px; font: 400 clamp(30px, 4vw, 46px)/1.25 Georgia, "Songti SC", serif; letter-spacing: -.02em; }

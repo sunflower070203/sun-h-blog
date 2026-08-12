@@ -54,6 +54,7 @@ export const siteSettings = pgTable("site_settings", {
   bio: text("bio").notNull().default(""),
   links: jsonb("links").$type<ProfileLink[]>().notNull().default([]),
   aboutContent: jsonb("about_content").$type<Record<string, unknown>>().notNull().default({ type: "doc", content: [{ type: "paragraph" }] }),
+  introContent: jsonb("intro_content").$type<Record<string, unknown>>().notNull().default({ type: "doc", content: [{ type: "paragraph" }] }),
   wallpaperUrl: text("wallpaper_url"),
   overlay: real("overlay").notNull(),
   blur: real("blur").notNull(),

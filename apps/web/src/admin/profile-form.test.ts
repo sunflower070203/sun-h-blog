@@ -8,6 +8,7 @@ import {
   canAddProfileLink,
   canSaveProfile,
   createEmptyProfileLink,
+  createProfileLinkId,
   createProfileLinks,
   removeProfileLink,
   serializeProfileLinks,
@@ -15,15 +16,19 @@ import {
 } from "./profile-form.ts";
 
 describe("profile link form helpers", () => {
+  it("creates an editor id when Web Crypto is unavailable on HTTP", () => {
+    assert.match(createProfileLinkId(undefined), /^profile-link-/);
+  });
+
   it("creates the expected empty link", () => {
-    assert.deepEqual(createEmptyProfileLink(() => "new-id"), { uiId: "new-id", title: "", url: "https://", description: "" });
+    assert.deepEqual(createEmptyProfileLink(() => "new-id"), { uiId: "new-id", title: "", url: "https://", description: "", icon: "link" });
   });
 
   it("assigns stable ids when profile links enter the editor", () => {
     let nextId = 0;
     const links = createProfileLinks([
-      { title: "first", url: "https://first.example", description: "one" },
-      { title: "second", url: "https://second.example", description: "two" }
+      { title: "first", url: "https://first.example", description: "one", icon: "github" },
+      { title: "second", url: "https://second.example", description: "two", icon: "website" }
     ], () => `id-${++nextId}`);
 
     assert.deepEqual(links.map((link) => link.uiId), ["id-1", "id-2"]);
@@ -56,12 +61,12 @@ describe("profile link form helpers", () => {
   });
 
   it("strips editor ids before serialization", () => {
-    const links = [{ uiId: "private-id", title: "site", url: "https://example.com", description: "desc" }];
-    assert.deepEqual(serializeProfileLinks(links), [{ title: "site", url: "https://example.com", description: "desc" }]);
+    const links = [{ uiId: "private-id", title: "site", url: "https://example.com", description: "desc", icon: "github" as const }];
+    assert.deepEqual(serializeProfileLinks(links), [{ title: "site", url: "https://example.com", description: "desc", icon: "github" }]);
   });
 
   it("allows saving only a loaded idle profile", () => {
-    const profile = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument };
+    const profile = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument };
     assert.equal(canSaveProfile(null, false, false, false), false);
     assert.equal(canSaveProfile(profile, true, false, false), false);
     assert.equal(canSaveProfile(profile, false, true, false), false);
@@ -95,6 +100,13 @@ describe("ProfilePage contract", () => {
     assert.match(source, /aboutEditor\?\.getJSON/);
     assert.match(source, /accept="\.md,text\/markdown,text\/plain"/);
     assert.match(source, /markdownToDocument/);
+  });
+
+  it("keeps a separate compact homepage intro without README import controls", () => {
+    assert.match(source, /首页简介/);
+    assert.match(source, /introEditor/);
+    assert.match(source, /createIntroEditorExtensions/);
+    assert.match(source, /iconOptions/);
   });
 
   it("connects the profile fieldset to an accessible legend", () => {

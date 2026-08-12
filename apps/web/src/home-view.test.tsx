@@ -13,10 +13,11 @@ const profile: PublicProfile = {
   avatarUrl: "/media/2026-08-11/11111111-1111-1111-1111-111111111111.png",
   bio: "A short biography.",
   links: [
-    { title: "Same", url: "https://example.com", description: "First" },
-    { title: "Same", url: "https://example.com", description: "Second" },
+    { title: "Same", url: "https://example.com", description: "First", icon: "github" },
+    { title: "Same", url: "https://example.com", description: "Second", icon: "website" },
   ],
   aboutContent: emptyRichDocument,
+  introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Homepage intro" }] }] },
 };
 
 const post: PostSummary = {
@@ -44,12 +45,12 @@ async function renderHome(posts: PostSummary[], value: PublicProfile) {
 
 describe("HomeView server rendering", () => {
   it("renders a profile home with a neutral pinned-post empty state", async () => {
-    const html = await renderHome([], { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument });
+    const html = await renderHome([], { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument });
     assert.match(html, /class="public-layout"/);
     assert.match(html, /class="site-header"/);
-    assert.match(html, /<h2>置顶文章<\/h2>/);
+    assert.match(html, /<h2>置顶文章 \/ 项目<\/h2>/);
     assert.match(html, /还没有置顶文章。/);
-    assert.match(html, /<h2>个人介绍<\/h2>/);
+    assert.match(html, /<h2>简介<\/h2>/);
     assert.match(html, /<h2>外部链接<\/h2>/);
     assert.doesNotMatch(html, /<h2>(?:科研学习|日常生活)<\/h2>/);
   });
@@ -60,6 +61,8 @@ describe("HomeView server rendering", () => {
     assert.equal((html.match(/target="_blank"/g) ?? []).length, 2);
     assert.equal((html.match(/rel="noopener noreferrer"/g) ?? []).length, 2);
     assert.ok(html.includes("First") && html.includes("Second"));
+    assert.ok(html.indexOf("First") < html.indexOf("Second"));
+    assert.equal((html.match(/class="profile-links"/g) ?? []).length, 1);
   });
 
   it("actually renders PostCard and preserves duplicate tags", async () => {
@@ -68,5 +71,11 @@ describe("HomeView server rendering", () => {
     assert.ok(html.includes("Rendered post"));
     assert.ok(html.includes("Rendered excerpt"));
     assert.equal((html.match(/#repeat/g) ?? []).length, 2);
+  });
+
+  it("marks pinned posts tagged as projects without changing their article route", async () => {
+    const html = await renderHome([{ ...post, tags: ["项目"] }], profile);
+    assert.match(html, /class="project-badge">项目<\/span>/);
+    assert.match(html, /href="\/posts\/rendered-post"/);
   });
 });
