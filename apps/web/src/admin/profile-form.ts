@@ -3,16 +3,21 @@ import type { ProfileLink, PublicProfile } from "@sunny/shared";
 export type EditableProfileLink = ProfileLink & { uiId: string };
 type IdFactory = () => string;
 export const MAX_PROFILE_LINKS = 12;
+let nextProfileLinkId = 0;
+
+export function createProfileLinkId(cryptoApi: { randomUUID?: () => string } | undefined): string {
+  return cryptoApi?.randomUUID?.() ?? `profile-link-${Date.now()}-${++nextProfileLinkId}`;
+}
 
 export function canAddProfileLink(links: ArrayLike<unknown>): boolean {
   return links.length < MAX_PROFILE_LINKS;
 }
 
-export function createEmptyProfileLink(createId: IdFactory = () => crypto.randomUUID()): EditableProfileLink {
+export function createEmptyProfileLink(createId: IdFactory = () => createProfileLinkId(globalThis.crypto)): EditableProfileLink {
   return { uiId: createId(), title: "", url: "https://", description: "" };
 }
 
-export function createProfileLinks(links: ProfileLink[], createId: IdFactory = () => crypto.randomUUID()): EditableProfileLink[] {
+export function createProfileLinks(links: ProfileLink[], createId: IdFactory = () => createProfileLinkId(globalThis.crypto)): EditableProfileLink[] {
   return links.map((link) => ({ uiId: createId(), ...link }));
 }
 

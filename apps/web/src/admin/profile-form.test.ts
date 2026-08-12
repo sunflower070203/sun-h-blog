@@ -8,6 +8,7 @@ import {
   canAddProfileLink,
   canSaveProfile,
   createEmptyProfileLink,
+  createProfileLinkId,
   createProfileLinks,
   removeProfileLink,
   serializeProfileLinks,
@@ -15,6 +16,10 @@ import {
 } from "./profile-form.ts";
 
 describe("profile link form helpers", () => {
+  it("creates an editor id when Web Crypto is unavailable on HTTP", () => {
+    assert.match(createProfileLinkId(undefined), /^profile-link-/);
+  });
+
   it("creates the expected empty link", () => {
     assert.deepEqual(createEmptyProfileLink(() => "new-id"), { uiId: "new-id", title: "", url: "https://", description: "" });
   });
