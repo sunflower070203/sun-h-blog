@@ -18,6 +18,7 @@ export function AdminFrame({ children, settings }: { children: ReactNode; settin
       <Link className="admin-logo" to="/admin">Sunny<span>Research Studio</span></Link>
       <nav>
         <Link className={location.pathname === "/admin" ? "active" : ""} to="/admin">文章</Link>
+        <Link className={location.pathname === "/admin/profile" ? "active" : ""} to="/admin/profile">个人资料</Link>
         <Link className={location.pathname === "/admin/appearance" ? "active" : ""} to="/admin/appearance">外观</Link>
         <a href="/" target="_blank">查看博客 ↗</a>
       </nav>

@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import type { PostDetail } from "@sunny/shared";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import { useParams } from "react-router-dom";
 import { api } from "../api";
-import { Gallery } from "../admin/editor/Gallery";
-
-function ArticleBody({ post }: { post: PostDetail }) {
-  const editor = useEditor({ extensions: [StarterKit, Image, Gallery, Link], content: post.content, editable: false });
-  return <EditorContent editor={editor} />;
-}
+import { RichDocument } from "../components/RichDocument";
 
 export function PostPage() {
   const { slug = "" } = useParams();
@@ -29,7 +20,7 @@ export function PostPage() {
         <div className="tags">{post.tags.map((tag) => <span key={tag}>#{tag}</span>)}</div>
       </header>
       {post.coverUrl && <img className="article-cover" src={post.coverUrl} alt={post.coverAlt} />}
-      <article className="prose"><ArticleBody post={post} /></article>
+      <RichDocument content={post.content} />
     </main>
   );
 }

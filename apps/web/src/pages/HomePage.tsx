@@ -1,59 +1,65 @@
-import { useEffect, useState } from "react";
-import type { PostSummary } from "@sunny/shared";
+import React, { useEffect, useState } from "react";
+import type { PostSummary, PublicProfile } from "@sunny/shared";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import { PostCard } from "../components/PostCard";
-import { interests, site } from "../content/site";
+import { RichDocument } from "../components/RichDocument";
+import { applyHomeData, emptyProfile, loadHomeData, selectPinnedPosts } from "../home-data";
 
 export function HomePage() {
   const [posts, setPosts] = useState<PostSummary[]>([]);
-  useEffect(() => { api.listPosts().then(setPosts).catch(() => setPosts([])); }, []);
+  const [profile, setProfile] = useState<PublicProfile>(emptyProfile);
+
+  useEffect(() => {
+    return applyHomeData(loadHomeData(api), (data) => {
+      setPosts(data.posts);
+      setProfile(data.profile);
+    });
+  }, []);
+
+  return <HomeView posts={posts} profile={profile} />;
+}
+
+export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: PublicProfile }) {
+  const pinnedPosts = selectPinnedPosts(posts);
 
   return (
-    <main>
-      <section className="index-hero">
-        <div className="index-intro">
-          <p className="kicker">{site.school} <span>/</span> {site.role}</p>
-          <h1>Research<br /><em>first.</em></h1>
-          <p className="hero-intro">{site.intro}</p>
-          <div className="hero-actions">
-            <a className="button primary" href="#research">进入研究索引 ↘</a>
-            <Link className="button ghost" to="/posts">阅读文章</Link>
+    <main className="home-layout">
+      <header className="profile-sidebar">
+        {profile.avatarUrl && <img src={profile.avatarUrl} alt={profile.displayName} />}
+        <h1>{profile.displayName}</h1>
+      </header>
+
+      <div className="home-content">
+        <section className="home-section profile-readme">
+          <h2>个人介绍</h2>
+          <RichDocument content={profile.aboutContent} />
+        </section>
+
+        <section className="home-section external-links-section">
+          <h2>外部链接</h2>
+          {profile.links.length > 0 ? (
+          <div className="profile-links">
+            {profile.links.map((link, index) => (
+              <a href={link.url} target="_blank" rel="noopener noreferrer" key={`${link.title}-${link.url}-${index}`}>
+                <strong>{link.title}</strong>
+                {link.description && <span>{link.description}</span>}
+              </a>
+            ))}
           </div>
-        </div>
-        <div className="index-portrait" role="img" aria-label="海面上的帆船">
-          <div className="glass index-caption"><span>Current position</span><strong>南京 · 东南大学</strong><small>持续探索中</small></div>
-        </div>
-      </section>
+          ) : <p className="empty-state">还没有添加外部链接。</p>}
+        </section>
 
-      <section className="section" id="research">
-        <div className="section-label">01 / Current research index</div>
-        <div className="section-heading">
-          <h2>不是展示答案，<br />而是记录问题如何展开。</h2>
-          <p>目前仍在建立研究基础。这里会诚实记录阅读、实验、复现与失败，而不是提前包装成熟成果。</p>
-        </div>
-        <div className="research-index">
-          {interests.map(([index, title, description]) => (
-            <article className="interest-card" key={index}>
-              <span>{index}</span><div><h3>{title}</h3><p>{description}</p></div><b>Open thread ↗</b>
-            </article>
-          ))}
-        </div>
-      </section>
+        <section className="home-section pinned-section">
+          <p className="section-label">Pinned</p>
+          <h2>置顶文章</h2>
+          {pinnedPosts.length > 0
+            ? <div className="post-grid">{pinnedPosts.map((post) => <PostCard post={post} key={post.id} />)}</div>
+            : <p className="empty-state">还没有置顶文章。</p>}
+        </section>
 
-      <section className="section latest-section">
-        <div className="section-label">02 / Field notes</div>
-        <div className="section-heading compact"><h2>最近更新</h2><Link to="/posts">查看全部文章 ↗</Link></div>
-        {posts.length ? <div className="post-grid">{posts.slice(0, 3).map((post) => <PostCard post={post} key={post.id} />)}</div> :
-          <div className="empty-state"><p>第一篇文章还在航线上。</p><span>登录写作后台，发布后会自动出现在这里。</span></div>}
-      </section>
-
-      <section className="section about-section" id="about">
-        <div><span className="sun-mark">☀</span><p className="section-label">03 / About Sunny</p></div>
-        <div><h2>一名仍在形成方向的<br />东大本科生。</h2><p>这个网站不是完成时的简历，而是一份持续更新的航海日志。它会随着研究兴趣、能力边界和生活经验一起改变。</p></div>
-      </section>
-
-      <footer><p>Sunny · Research · Learning · Life</p><Link to="/admin">进入写作后台 ↗</Link></footer>
+        <footer><Link to="/admin">管理</Link></footer>
+      </div>
     </main>
   );
 }

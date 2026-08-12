@@ -1,4 +1,4 @@
-import type { AdminPostPage, PostDetail, PostInput, PostStatus, PostSummary, SiteSettings } from "@sunny/shared";
+import type { AdminPostPage, PostDetail, PostInput, PostStatus, PostSummary, PublicProfile, SiteSettings } from "@sunny/shared";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const csrfToken = document.cookie.split("; ").find((item) => item.startsWith("sunny_csrf="))?.split("=")[1];
@@ -23,6 +23,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const api = {
   listPosts: (query = "") => request<PostSummary[]>(`/posts${query}`),
   getPost: (slug: string) => request<PostDetail>(`/posts/${slug}`),
+  getProfile: () => request<PublicProfile>("/profile"),
   login: (email: string, password: string) => request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   logout: () => request("/auth/logout", { method: "POST" }),
   listAdminPosts: (query = "") => request<AdminPostPage>(`/admin/posts${query}`),
@@ -38,6 +39,8 @@ export const api = {
   }),
   deletePost: (id: string) => request<void>(`/admin/posts/${id}`, { method: "DELETE" }),
   getSettings: () => request<SiteSettings>("/admin/settings"),
+  getAdminProfile: () => request<PublicProfile>("/admin/profile"),
+  updateProfile: (profile: PublicProfile) => request<PublicProfile>("/admin/profile", { method: "PUT", body: JSON.stringify(profile) }),
   updateSettings: (settings: SiteSettings) => request<SiteSettings>("/admin/settings", {
     method: "PUT",
     body: JSON.stringify(settings)
