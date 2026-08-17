@@ -2,7 +2,8 @@ import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { siteSettingsInputSchema, type PublicProfile, type SiteSettings } from "@sunny/shared";
 import { db } from "../db/index.js";
 import { siteSettings } from "../db/schema.js";
-import { defaultPublicProfile, defaultSiteSettings } from "../services/settings.js";
+import { defaultPublicAppearance, defaultPublicProfile, defaultSiteSettings } from "../services/settings.js";
+import { createAppearanceHandlers } from "./appearance-handlers.js";
 import { createProfileHandlers, type SettingsDatabase, type SettingsTable } from "./profile-handlers.js";
 
 const primarySettingsId = "primary";
@@ -23,9 +24,13 @@ export async function settingsRoutes(app: FastifyInstance, options: SettingsRout
     options.defaultPublicProfile ?? defaultPublicProfile,
     options.defaultSiteSettings ?? defaultSiteSettings
   );
+  const appearance = createAppearanceHandlers(database, settingsTable, defaultPublicAppearance, defaultSiteSettings);
   app.get("/profile", profile.get);
   app.get("/admin/profile", { preHandler: app.authenticate }, profile.get);
   app.put("/admin/profile", { preHandler: app.authenticate }, profile.put);
+  app.get("/appearance", appearance.get);
+  app.get("/admin/appearance/public", { preHandler: app.authenticate }, appearance.get);
+  app.put("/admin/appearance/public", { preHandler: app.authenticate }, appearance.put);
 
   app.get("/admin/settings", { preHandler: app.authenticate }, async () => {
     const [settings] = await database.select().from(settingsTable).limit(1);

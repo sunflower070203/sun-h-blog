@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { emptyRichDocument } from "@sunny/shared";
+import { defaultPublicDesignTokens, emptyRichDocument } from "@sunny/shared";
 import { buildApp } from "../app.ts";
+import { createAppearanceHandlers } from "./appearance-handlers.ts";
 import { createProfileHandlers } from "./profile-handlers.ts";
 
 const defaultPublicProfile = { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument };
@@ -152,5 +153,31 @@ describe("profile routes", () => {
     for (const field of ["wallpaperUrl", "overlay", "blur", "position"]) {
       assert.equal(field in writes.updated!, false);
     }
+  });
+});
+
+describe("public appearance routes", () => {
+  const defaults = {
+    publicBannerUrl: null,
+    publicBannerPositionX: 50,
+    publicBannerPositionY: 50,
+    publicColorMode: "system" as const,
+    publicDesignTokens: defaultPublicDesignTokens,
+    publicCustomCss: ""
+  };
+
+  it("returns only public appearance fields and falls back from malformed stored tokens", async () => {
+    const fakeDb = createFakeDb([{ ...defaults, publicDesignTokens: { version: 99 }, wallpaperUrl: "/private.png" }]);
+    const handlers = createAppearanceHandlers(fakeDb.database as never, { id: "id" } as never, defaults, defaultSiteSettings);
+    assert.deepEqual(await handlers.get(), defaults);
+  });
+
+  it("rejects unsafe custom CSS without writing", async () => {
+    const fakeDb = createFakeDb();
+    const handlers = createAppearanceHandlers(fakeDb.database as never, { id: "id" } as never, defaults, defaultSiteSettings);
+    const reply = new FakeReply();
+    await handlers.put({ body: { ...defaults, publicCustomCss: '@import "https://bad.example/style.css";' } }, reply);
+    assert.equal(reply.statusCode, 400);
+    assert.equal(fakeDb.writes.inserted, undefined);
   });
 });

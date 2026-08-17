@@ -10,6 +10,7 @@ const LoginPage = lazy(() => import("./admin/LoginPage").then((module) => ({ def
 const DashboardPage = lazy(() => import("./admin/DashboardPage").then((module) => ({ default: module.DashboardPage })));
 const PostEditorPage = lazy(() => import("./admin/PostEditorPage").then((module) => ({ default: module.PostEditorPage })));
 const AppearancePage = lazy(() => import("./admin/AppearancePage").then((module) => ({ default: module.AppearancePage })));
+const PublicAppearancePage = lazy(() => import("./admin/PublicAppearancePage").then((module) => ({ default: module.PublicAppearancePage })));
 const ProfilePage = lazy(() => import("./admin/ProfilePage").then((module) => ({ default: module.ProfilePage })));
 const CategoryPage = lazy(() => import("./pages/CategoryPage").then((module) => ({ default: module.CategoryPage })));
 const AboutPage = lazy(() => import("./pages/AboutPage").then((module) => ({ default: module.AboutPage })));
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/admin" element={<DashboardPage />} />
           <Route path="/admin/profile" element={<ProfilePage />} />
           <Route path="/admin/appearance" element={<AppearancePage />} />
+          <Route path="/admin/public-appearance" element={<PublicAppearancePage />} />
           <Route path="/admin/posts/new" element={<PostEditorPage />} />
           <Route path="/admin/posts/:id" element={<PostEditorPage />} />
         </Routes>

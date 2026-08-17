@@ -59,6 +59,27 @@ describe("loadHomeData", () => {
   });
 });
 
+describe("local demo fallback", () => {
+  it("uses demo content only for an entirely empty development response", async () => {
+    const { resolveHomeData } = await import(moduleUrl.href);
+    const empty = { posts: [], profile: { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument } };
+    const demo = { posts: [post], profile };
+
+    assert.deepEqual(resolveHomeData(empty, demo, true), demo);
+    assert.deepEqual(resolveHomeData(empty, demo, false), empty);
+  });
+
+  it("never replaces real posts or profile data", async () => {
+    const { resolveHomeData } = await import(moduleUrl.href);
+    const demo = { posts: [{ ...post, id: "demo" }], profile: { ...profile, bio: "Demo" } };
+    const realPosts = { posts: [post], profile: { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument } };
+    const realProfile = { posts: [], profile };
+
+    assert.deepEqual(resolveHomeData(realPosts, demo, true), realPosts);
+    assert.deepEqual(resolveHomeData(realProfile, demo, true), realProfile);
+  });
+});
+
 describe("selectHomePosts", () => {
   it("accepts only exact public categories", async () => {
     const homeData = await import(moduleUrl.href);
@@ -107,6 +128,28 @@ describe("selectPinnedPosts", () => {
     items.splice(2, 0, { ...post, id: "draft-pin", featured: true, status: "draft" });
     items.splice(3, 0, { ...post, id: "not-pin", featured: false });
     assert.deepEqual(selectPinnedPosts(items).map((item) => item.id), ["pin-0", "pin-1", "pin-2", "pin-3", "pin-4", "pin-5"]);
+  });
+});
+
+describe("Fuwari home feed", () => {
+  it("keeps featured posts in a separate selection and removes them from the latest feed", async () => {
+    const { selectHomeFeed } = await import(moduleUrl.href);
+    const featured = { ...post, id: "featured", featured: true };
+    const latest = { ...post, id: "latest", featured: false };
+    const result = selectHomeFeed([featured, latest]);
+    assert.deepEqual(result.featured.map((item) => item.id), ["featured"]);
+    assert.deepEqual(result.latest.map((item) => item.id), ["latest"]);
+  });
+
+  it("counts categories and tags from published posts only", async () => {
+    const { collectPostFacets } = await import(moduleUrl.href);
+    const facets = collectPostFacets([
+      { ...post, id: "one", category: "科研学习", tags: ["AI", "论文"] },
+      { ...post, id: "two", category: "科研学习", tags: ["AI"] },
+      { ...post, id: "draft", status: "draft", category: "日常生活", tags: ["私密"] }
+    ]);
+    assert.deepEqual(facets.categories, [{ name: "科研学习", count: 2 }]);
+    assert.deepEqual(facets.tags, [{ name: "AI", count: 2 }, { name: "论文", count: 1 }]);
   });
 });
 

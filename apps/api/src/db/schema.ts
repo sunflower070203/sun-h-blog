@@ -1,5 +1,5 @@
 import { boolean, jsonb, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import type { ProfileLink } from "@sunny/shared";
+import type { ProfileLink, PublicDesignTokens } from "@sunny/shared";
 
 export const admins = pgTable("admins", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -55,6 +55,12 @@ export const siteSettings = pgTable("site_settings", {
   links: jsonb("links").$type<ProfileLink[]>().notNull().default([]),
   aboutContent: jsonb("about_content").$type<Record<string, unknown>>().notNull().default({ type: "doc", content: [{ type: "paragraph" }] }),
   introContent: jsonb("intro_content").$type<Record<string, unknown>>().notNull().default({ type: "doc", content: [{ type: "paragraph" }] }),
+  publicBannerUrl: text("public_banner_url").default("/sailboat.png"),
+  publicBannerPositionX: real("public_banner_position_x").notNull().default(50),
+  publicBannerPositionY: real("public_banner_position_y").notNull().default(50),
+  publicColorMode: text("public_color_mode", { enum: ["system", "light", "dark"] }).notNull().default("system"),
+  publicDesignTokens: jsonb("public_design_tokens").$type<PublicDesignTokens>().notNull().default({ version: 1, pageWidth: 1120, pagePadding: 24, columnGap: 32, sidebarWidth: 280, bannerHeight: 280, mobileBannerHeight: 180, navHeight: 64, cardRadius: 18, cardOpacity: 0.82, cardBlur: 14, cardShadow: 18, titleSize: 30, bodySize: 16, metaSize: 12, bodyLineHeight: 1.75, coverRatio: 1.78, mobileGap: 16 }),
+  publicCustomCss: text("public_custom_css").notNull().default(""),
   wallpaperUrl: text("wallpaper_url"),
   overlay: real("overlay").notNull(),
   blur: real("blur").notNull(),

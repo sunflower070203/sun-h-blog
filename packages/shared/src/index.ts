@@ -77,6 +77,66 @@ export const siteSettingsInputSchema = z.object({
   position: z.enum(["center", "top", "bottom"])
 });
 
+const boundedNumber = (minimum: number, maximum: number) => z.coerce.number()
+  .finite()
+  .transform((value) => Math.min(maximum, Math.max(minimum, value)));
+
+export const defaultPublicDesignTokens = {
+  version: 1 as const,
+  pageWidth: 1120,
+  pagePadding: 24,
+  columnGap: 32,
+  sidebarWidth: 280,
+  bannerHeight: 280,
+  mobileBannerHeight: 180,
+  navHeight: 64,
+  cardRadius: 18,
+  cardOpacity: 0.82,
+  cardBlur: 14,
+  cardShadow: 18,
+  titleSize: 30,
+  bodySize: 16,
+  metaSize: 12,
+  bodyLineHeight: 1.75,
+  coverRatio: 1.78,
+  mobileGap: 16
+};
+
+export const publicDesignTokensSchema = z.object({
+  version: z.literal(1).default(1),
+  pageWidth: boundedNumber(960, 1440),
+  pagePadding: boundedNumber(12, 64),
+  columnGap: boundedNumber(20, 96),
+  sidebarWidth: boundedNumber(220, 360),
+  bannerHeight: boundedNumber(180, 480),
+  mobileBannerHeight: boundedNumber(120, 280),
+  navHeight: boundedNumber(52, 88),
+  cardRadius: boundedNumber(0, 32),
+  cardOpacity: boundedNumber(0.55, 1),
+  cardBlur: boundedNumber(0, 30),
+  cardShadow: boundedNumber(0, 40),
+  titleSize: boundedNumber(22, 48),
+  bodySize: boundedNumber(14, 22),
+  metaSize: boundedNumber(10, 16),
+  bodyLineHeight: boundedNumber(1.4, 2.2),
+  coverRatio: boundedNumber(1, 2.4),
+  mobileGap: boundedNumber(10, 32)
+});
+
+const safePublicCssSchema = z.string().max(12000).superRefine((value, context) => {
+  if (/@import\b/i.test(value)) context.addIssue({ code: "custom", message: "高级 CSS 不允许使用 @import" });
+  if (/url\(\s*["']?\s*(?:https?:)?\/\//i.test(value)) context.addIssue({ code: "custom", message: "高级 CSS 不允许加载外部资源" });
+});
+
+export const publicAppearanceInputSchema = z.object({
+  publicBannerUrl: z.union([localMediaUrlSchema, z.literal("/sailboat.png"), z.null()]),
+  publicBannerPositionX: boundedNumber(0, 100),
+  publicBannerPositionY: boundedNumber(0, 100),
+  publicColorMode: z.enum(["system", "light", "dark"]),
+  publicDesignTokens: publicDesignTokensSchema,
+  publicCustomCss: safePublicCssSchema
+});
+
 export const adminPostQuerySchema = z.object({
   q: z.string().trim().max(100).optional(),
   category: z.string().trim().max(40).optional(),
@@ -109,6 +169,8 @@ export const postInputSchema = z.object({
 export type PostInput = z.infer<typeof postInputSchema>;
 export type PostStatus = z.infer<typeof postStatusSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsInputSchema>;
+export type PublicDesignTokens = z.infer<typeof publicDesignTokensSchema>;
+export type PublicAppearance = z.infer<typeof publicAppearanceInputSchema>;
 export type ProfileLink = z.infer<typeof profileLinkSchema>;
 export type ProfileLinkIcon = z.infer<typeof profileLinkIconSchema>;
 export type PublicProfile = z.infer<typeof publicProfileInputSchema>;

@@ -20,6 +20,7 @@ export function AdminFrame({ children, settings }: { children: ReactNode; settin
         <Link className={location.pathname === "/admin" ? "active" : ""} to="/admin">文章</Link>
         <Link className={location.pathname === "/admin/profile" ? "active" : ""} to="/admin/profile">个人资料</Link>
         <Link className={location.pathname === "/admin/appearance" ? "active" : ""} to="/admin/appearance">外观</Link>
+        <Link className={location.pathname === "/admin/public-appearance" ? "active" : ""} to="/admin/public-appearance">公共外观</Link>
         <a href="/" target="_blank">查看博客 ↗</a>
       </nav>
       <button onClick={logout}>退出登录</button>

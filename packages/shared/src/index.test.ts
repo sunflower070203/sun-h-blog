@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { adminPostQuerySchema, emptyRichDocument, postInputSchema, publicProfileInputSchema, siteSettingsInputSchema, slugify } from "./index.ts";
+import { adminPostQuerySchema, defaultPublicDesignTokens, emptyRichDocument, postInputSchema, publicAppearanceInputSchema, publicProfileInputSchema, siteSettingsInputSchema, slugify } from "./index.ts";
 
 describe("post input", () => {
   it("rejects a post without a title", () => {
@@ -50,6 +50,52 @@ describe("admin contracts", () => {
       pageSize: 20,
       status: "draft"
     });
+  });
+});
+
+describe("public appearance contract", () => {
+  it("provides bounded versioned design tokens", () => {
+    const appearance = publicAppearanceInputSchema.parse({
+      publicBannerUrl: null,
+      publicBannerPositionX: 50,
+      publicBannerPositionY: 45,
+      publicColorMode: "system",
+      publicDesignTokens: { ...defaultPublicDesignTokens, pageWidth: 1800, cardOpacity: 0.2 },
+      publicCustomCss: ""
+    });
+
+    assert.equal(appearance.publicDesignTokens.version, 1);
+    assert.equal(appearance.publicDesignTokens.pageWidth, 1440);
+    assert.equal(appearance.publicDesignTokens.cardOpacity, 0.55);
+  });
+
+  it("accepts the bundled sailboat as the default public banner", () => {
+    const appearance = publicAppearanceInputSchema.parse({
+      publicBannerUrl: "/sailboat.png",
+      publicBannerPositionX: 50,
+      publicBannerPositionY: 50,
+      publicColorMode: "system",
+      publicDesignTokens: defaultPublicDesignTokens,
+      publicCustomCss: ""
+    });
+    assert.equal(appearance.publicBannerUrl, "/sailboat.png");
+  });
+
+  it("rejects imported styles and external CSS resources", () => {
+    for (const publicCustomCss of [
+      '@import "https://example.com/theme.css";',
+      '.public-layout { background: url(https://example.com/track.png) }'
+    ]) {
+      const result = publicAppearanceInputSchema.safeParse({
+        publicBannerUrl: null,
+        publicBannerPositionX: 50,
+        publicBannerPositionY: 50,
+        publicColorMode: "dark",
+        publicDesignTokens: defaultPublicDesignTokens,
+        publicCustomCss
+      });
+      assert.equal(result.success, false);
+    }
   });
 });
 
