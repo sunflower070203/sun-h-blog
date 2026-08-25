@@ -73,6 +73,12 @@ describe("HomeView server rendering", () => {
     assert.match(html, /class="profile-avatar-overlay"/);
   });
 
+  it("does not expose an admin entry on the public homepage", async () => {
+    const html = await renderHome([], profile);
+    assert.doesNotMatch(html, /href="\/admin(?:\/login)?"/);
+    assert.doesNotMatch(html, />管理<\/a>/);
+  });
+
   it("actually renders PostCard and preserves duplicate tags", async () => {
     const html = await renderHome([post, { ...post, id: "latest", slug: "latest", featured: false }], profile);
     assert.match(html, /href="\/posts\/rendered-post"/);

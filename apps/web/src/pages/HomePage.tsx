@@ -71,7 +71,6 @@ export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: Pu
           {feed.latest.length > 0 ? <div className="post-grid">{feed.latest.map((post) => <PostCard post={post} key={post.id} />)}</div> : <p className="empty-state fuwari-card">暂无其他文章。</p>}
         </section>
 
-        <footer><Link to="/admin">管理</Link></footer>
       </div>
     </main>
   );
