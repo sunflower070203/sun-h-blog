@@ -20,12 +20,29 @@ describe("Fuwari public visual system", () => {
     assert.match(css, /\.post-cover\s*\{[^}]*aspect-ratio:\s*var\(--public-cover-ratio\)/s);
   });
 
+  it("styles named profile links, a focused pin, compact recent rows and a quiet filing footer", () => {
+    assert.match(css, /\.profile-named-links\s*\{[^}]*display:\s*grid/s);
+    assert.match(css, /\.profile-named-link\s*\{[^}]*min-height:\s*38px/s);
+    assert.match(css, /\.profile-named-link\s+\.profile-link-icon\s*\{/);
+    assert.match(css, /\.profile-named-link span\s*\{[^}]*overflow-wrap:\s*anywhere/s);
+    assert.match(css, /\.featured-section\s+\.post-card\.is-featured\s*\{[^}]*grid-template-columns:/s);
+    assert.match(css, /\.home-latest-list\s*\{[^}]*border-top:/s);
+    assert.match(css, /\.home-latest-item\s*\{[^}]*grid-template-columns:/s);
+    assert.match(css, /\.home-latest-item p\s*\{[^}]*-webkit-line-clamp:\s*1/s);
+    assert.match(css, /\.public-compliance\s*\{[^}]*justify-content:\s*center/s);
+    assert.match(css, /\.public-compliance img\s*\{[^}]*width:\s*14px/s);
+  });
+
   it("keeps navigation visible and collapses to one column at 760px", () => {
     const mobile = css.match(/@media\s*\(max-width:\s*760px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? "";
     assert.match(mobile, /\.home-layout\s*\{[^}]*grid-template-columns:\s*1fr/s);
     assert.match(mobile, /\.site-header nav\s*\{[^}]*overflow-x:\s*auto/s);
     assert.doesNotMatch(mobile, /\.site-header nav\s*\{[^}]*display:\s*none/s);
     assert.match(mobile, /backdrop-filter:\s*none/);
+    assert.match(mobile, /\.profile-named-links\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
+    assert.match(mobile, /\.featured-section\s+\.post-card\.is-featured\s*\{[^}]*grid-template-columns:\s*1fr/s);
+    assert.match(mobile, /\.home-latest-item\s*\{[^}]*grid-template-columns:\s*72px\s+minmax\(0,\s*1fr\)/s);
+    assert.match(mobile, /\.public-compliance\s*\{[^}]*padding-bottom:\s*22px/s);
   });
 
   it("honors reduced motion and retains article/gallery styles", () => {
