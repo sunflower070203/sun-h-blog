@@ -13,8 +13,11 @@ const profile: PublicProfile = {
   avatarUrl: "/media/2026-08-11/11111111-1111-1111-1111-111111111111.png",
   bio: "A short biography.",
   links: [
-    { title: "Same", url: "https://example.com", description: "First", icon: "github" },
-    { title: "Same", url: "https://example.com", description: "Second", icon: "website" },
+    { title: "GitHub", url: "https://github.com/example", description: "Code", icon: "github" },
+    { title: "ORCID", url: "https://orcid.org/0000-0000", description: "Research", icon: "orcid" },
+    { title: "Email", url: "https://example.com/contact", description: "Contact", icon: "email" },
+    { title: "Website", url: "https://example.com", description: "Home", icon: "website" },
+    { title: "Fifth link", url: "https://example.net", description: "Hidden", icon: "link" },
   ],
   aboutContent: emptyRichDocument,
   introContent: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Homepage intro" }] }] },
@@ -44,27 +47,52 @@ async function renderHome(posts: PostSummary[], value: PublicProfile) {
 }
 
 describe("HomeView server rendering", () => {
-  it("renders Fuwari profile, category, tag, featured and latest sections", async () => {
+  it("renders the focused Fuwari profile and latest section", async () => {
     const html = await renderHome([], { displayName: "Sunny", avatarUrl: null, bio: "", links: [], aboutContent: emptyRichDocument, introContent: emptyRichDocument });
     assert.match(html, /class="public-layout"/);
     assert.match(html, /class="site-header"/);
-    assert.match(html, /精选内容/);
     assert.match(html, /最新文章/);
-    assert.match(html, /分类/);
-    assert.match(html, /标签/);
+    assert.doesNotMatch(html, /置顶内容/);
   });
 
-  it("renders safe external links and preserves duplicate link cards", async () => {
+  it("renders only bio and the first four named links", async () => {
     const html = await renderHome([], profile);
+    assert.match(html, />A short biography\.<\/p>/);
+    assert.doesNotMatch(html, /Homepage intro/);
+    assert.equal((html.match(/class="profile-named-link"/g) ?? []).length, 4);
+    assert.equal((html.match(/class="profile-named-link" href="[^"]+" target="_blank" rel="noopener noreferrer"/g) ?? []).length, 4);
+    assert.match(html, />GitHub</);
+    assert.match(html, />ORCID</);
+    assert.doesNotMatch(html, />Fifth link</);
+    assert.doesNotMatch(html, /external-links-card|facet-card|category-list|tag-cloud/);
     assert.match(html, /class="profile-accent"/);
-    assert.match(html, /class="profile-social-links"/);
-    assert.match(html, /class="fuwari-card external-links-card"/);
-    assert.equal((html.match(/href="https:\/\/example\.com"/g) ?? []).length, 4);
-    assert.equal((html.match(/target="_blank"/g) ?? []).length, 4);
-    assert.equal((html.match(/rel="noopener noreferrer"/g) ?? []).length, 4);
-    assert.ok(html.includes("First") && html.includes("Second"));
-    assert.ok(html.indexOf("First") < html.indexOf("Second"));
-    assert.equal((html.match(/class="profile-links"/g) ?? []).length, 1);
+  });
+
+  it("hides the pinned section when there is no pinned post", async () => {
+    const html = await renderHome([{ ...post, id: "latest", slug: "latest", featured: false }], profile);
+    assert.doesNotMatch(html, /置顶内容/);
+    assert.match(html, /class="home-latest-item"/);
+  });
+
+  it("renders one pinned card, three compact recent rows, and filing links", async () => {
+    const posts = [
+      post,
+      ...Array.from({ length: 4 }, (_, index) => ({
+        ...post,
+        id: `latest-${index}`,
+        slug: `latest-${index}`,
+        title: `Latest ${index}`,
+        featured: false,
+      })),
+    ];
+    const html = await renderHome(posts, profile);
+    assert.equal((html.match(/class="home-latest-item"/g) ?? []).length, 3);
+    assert.match(html, /置顶内容/);
+    assert.match(html, /晋ICP备2026010770号/);
+    assert.match(html, /苏公网安备32011502014222号/);
+    assert.match(html, /href="https:\/\/beian\.miit\.gov\.cn\/"/);
+    assert.match(html, /href="https:\/\/beian\.mps\.gov\.cn\/#\/query\/webSearch\?code=32011502014222"/);
+    assert.match(html, /src="\/beian-police\.png"/);
   });
 
   it("links the Fuwari avatar overlay to the about page", async () => {
@@ -79,12 +107,12 @@ describe("HomeView server rendering", () => {
     assert.doesNotMatch(html, />管理<\/a>/);
   });
 
-  it("actually renders PostCard and preserves duplicate tags", async () => {
+  it("renders the pinned PostCard and preserves its duplicate tags", async () => {
     const html = await renderHome([post, { ...post, id: "latest", slug: "latest", featured: false }], profile);
     assert.match(html, /href="\/posts\/rendered-post"/);
     assert.ok(html.includes("Rendered post"));
     assert.ok(html.includes("Rendered excerpt"));
-    assert.equal((html.match(/#repeat/g) ?? []).length, 5);
+    assert.equal((html.match(/#repeat/g) ?? []).length, 2);
     assert.equal((html.match(/<h3>/g) ?? []).length, 2);
   });
 

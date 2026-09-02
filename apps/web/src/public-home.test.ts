@@ -14,14 +14,13 @@ describe("Fuwari public content contract", () => {
     assert.match(shell, /className="theme-toggle"/);
   });
 
-  it("renders profile, facets, featured and deduplicated latest feeds", () => {
+  it("keeps the focused profile, optional pin, compact latest list and filing footer", () => {
     assert.match(home, /profile-card-public/);
-    assert.match(home, /facets\.categories/);
-    assert.match(home, /facets\.tags/);
-    assert.match(home, /feed\.featured/);
-    assert.match(home, /feed\.latest/);
-    assert.match(home, /精选内容/);
-    assert.match(home, /最新文章/);
+    assert.match(home, /profile\.links\.slice\(0, 4\)/);
+    assert.match(home, /feed\.featured\[0\]/);
+    assert.match(home, /home-latest-item/);
+    assert.match(home, /public-compliance/);
+    assert.doesNotMatch(home, /RichDocument|collectPostFacets|external-links-card|facet-card/);
   });
 
   it("keeps external links safe and article cards complete", () => {

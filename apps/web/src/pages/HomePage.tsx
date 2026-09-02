@@ -3,10 +3,9 @@ import type { PostSummary, PublicProfile } from "@sunny/shared";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import { PostCard } from "../components/PostCard";
-import { RichDocument } from "../components/RichDocument";
 import { ProfileLinkIcon } from "../components/ProfileLinkIcon";
 import { demoHomeData } from "../demo-home-data";
-import { applyHomeData, collectPostFacets, emptyProfile, loadHomeData, resolveHomeData, selectHomeFeed } from "../home-data";
+import { applyHomeData, emptyProfile, loadHomeData, resolveHomeData, selectHomeFeed } from "../home-data";
 
 export function HomePage() {
   const [posts, setPosts] = useState<PostSummary[]>([]);
@@ -24,9 +23,11 @@ export function HomePage() {
 
 export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: PublicProfile }) {
   const feed = selectHomeFeed(posts);
-  const facets = collectPostFacets(posts);
+  const featured = feed.featured[0];
+  const visibleLinks = profile.links.slice(0, 4);
 
   return (
+    <>
     <main className="home-layout">
       <aside className="profile-sidebar">
         <section className="fuwari-card profile-card-public">
@@ -39,39 +40,52 @@ export function HomeView({ posts, profile }: { posts: PostSummary[]; profile: Pu
           <h1>{profile.displayName}</h1>
           <span className="profile-accent" aria-hidden="true" />
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-          <RichDocument content={profile.introContent} />
-          {profile.links.length > 0 ? (
-          <div className="profile-social-links" aria-label="社交链接">
-            {profile.links.map((link, index) => (
-              <a href={link.url} target="_blank" rel="noopener noreferrer" title={link.title} aria-label={link.title} key={`${link.title}-${link.url}-${index}`}>
+          {visibleLinks.length > 0 && (
+          <nav className="profile-named-links" aria-label="外部链接">
+            {visibleLinks.map((link, index) => (
+              <a className="profile-named-link" href={link.url} target="_blank" rel="noopener noreferrer" key={`${link.title}-${link.url}-${index}`}>
                 <ProfileLinkIcon icon={link.icon} />
+                <span>{link.title}</span>
               </a>
             ))}
-          </div>
-          ) : null}
+          </nav>
+          )}
         </section>
-        {profile.links.length > 0 && <section className="fuwari-card external-links-card"><h2>外部链接</h2><div className="profile-links">
-          {profile.links.map((link, index) => <a href={link.url} target="_blank" rel="noopener noreferrer" key={`detail-${link.title}-${link.url}-${index}`}><ProfileLinkIcon icon={link.icon} /><span className="profile-link-copy"><strong>{link.title}</strong>{link.description && <small>{link.description}</small>}</span></a>)}
-        </div></section>}
-        <section className="fuwari-card facet-card"><h2>分类</h2>{facets.categories.length ? <div className="category-list">{facets.categories.map((item) => <Link to={item.name === "科研学习" ? "/research" : item.name === "日常生活" ? "/life" : `/posts?category=${encodeURIComponent(item.name)}`} key={item.name}><span>{item.name}</span><strong>{item.count}</strong></Link>)}</div> : <p>暂无分类</p>}</section>
-        <section className="fuwari-card facet-card"><h2>标签</h2>{facets.tags.length ? <div className="tag-cloud">{facets.tags.map((item) => <Link to={`/posts?q=${encodeURIComponent(item.name)}`} key={item.name}>#{item.name}<small>{item.count}</small></Link>)}</div> : <p>暂无标签</p>}</section>
       </aside>
 
       <div className="home-content">
 
-        <section className="home-section featured-section">
-          <header className="section-heading"><div><p className="section-label">Featured</p><h2>精选内容</h2></div></header>
-          {feed.featured.length > 0
-            ? <div className="featured-grid">{feed.featured.map((post) => <PostCard post={post} key={post.id} featured />)}</div>
-            : <p className="empty-state fuwari-card">还没有精选文章。</p>}
-        </section>
+        {featured && (
+          <section className="home-section featured-section">
+            <header className="section-heading"><div><p className="section-label">Pinned</p><h2>置顶内容</h2></div></header>
+            <PostCard post={featured} featured />
+          </section>
+        )}
 
         <section className="home-section latest-section-public">
           <header className="section-heading"><div><p className="section-label">Latest</p><h2>最新文章</h2></div><Link to="/posts">全部文章 →</Link></header>
-          {feed.latest.length > 0 ? <div className="post-grid">{feed.latest.map((post) => <PostCard post={post} key={post.id} />)}</div> : <p className="empty-state fuwari-card">暂无其他文章。</p>}
+          {feed.latest.length > 0 ? <div className="home-latest-list">{feed.latest.map((item) => (
+            <article className="home-latest-item" key={item.id}>
+              <time dateTime={item.publishedAt ?? undefined}>{item.publishedAt?.slice(0, 10)}</time>
+              <div>
+                <span>{item.category}</span>
+                <h3><Link to={`/posts/${item.slug}`}>{item.title}</Link></h3>
+                {item.excerpt && <p>{item.excerpt}</p>}
+              </div>
+            </article>
+          ))}</div> : <p className="empty-state fuwari-card">暂无其他文章。</p>}
         </section>
 
       </div>
     </main>
+    <footer className="public-compliance">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">晋ICP备2026010770号</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://beian.mps.gov.cn/#/query/webSearch?code=32011502014222" target="_blank" rel="noopener noreferrer">
+        <img src="/beian-police.png" alt="" />
+        苏公网安备32011502014222号
+      </a>
+    </footer>
+    </>
   );
 }
