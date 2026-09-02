@@ -37,6 +37,7 @@ describe("Fuwari public visual system", () => {
     const mobile = css.match(/@media\s*\(max-width:\s*760px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? "";
     assert.match(mobile, /\.home-layout\s*\{[^}]*grid-template-columns:\s*1fr/s);
     assert.match(mobile, /\.site-header nav\s*\{[^}]*overflow-x:\s*auto/s);
+    assert.match(mobile, /\.site-header nav\s*\{[^}]*gap:\s*12px/s);
     assert.doesNotMatch(mobile, /\.site-header nav\s*\{[^}]*display:\s*none/s);
     assert.match(mobile, /backdrop-filter:\s*none/);
     assert.match(mobile, /\.profile-avatar-link\s*\{[^}]*width:\s*min\(160px,\s*48vw\)[^}]*margin:\s*0\s+auto/s);
