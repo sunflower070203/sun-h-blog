@@ -132,13 +132,22 @@ describe("selectPinnedPosts", () => {
 });
 
 describe("Fuwari home feed", () => {
-  it("keeps featured posts in a separate selection and removes them from the latest feed", async () => {
+  it("selects one pinned post and three non-pinned recent posts in API order", async () => {
     const { selectHomeFeed } = await import(moduleUrl.href);
-    const featured = { ...post, id: "featured", featured: true };
-    const latest = { ...post, id: "latest", featured: false };
-    const result = selectHomeFeed([featured, latest]);
-    assert.deepEqual(result.featured.map((item) => item.id), ["featured"]);
-    assert.deepEqual(result.latest.map((item) => item.id), ["latest"]);
+    const items = [
+      { ...post, id: "featured-draft", featured: true, status: "draft" as const },
+      { ...post, id: "featured-1", featured: true },
+      { ...post, id: "featured-2", featured: true },
+      { ...post, id: "latest-draft", status: "draft" as const },
+      { ...post, id: "latest-1" },
+      { ...post, id: "latest-2" },
+      { ...post, id: "latest-3" },
+      { ...post, id: "latest-4" },
+    ];
+
+    const result = selectHomeFeed(items);
+    assert.deepEqual(result.featured.map((item) => item.id), ["featured-1"]);
+    assert.deepEqual(result.latest.map((item) => item.id), ["latest-1", "latest-2", "latest-3"]);
   });
 
   it("counts categories and tags from published posts only", async () => {

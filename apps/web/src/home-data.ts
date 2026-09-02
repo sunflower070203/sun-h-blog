@@ -54,8 +54,8 @@ export function selectPinnedPosts(posts: PostSummary[]) {
 export function selectHomeFeed(posts: PostSummary[]) {
   const published = posts.filter((post) => post.status === "published");
   return {
-    featured: published.filter((post) => post.featured).slice(0, 6),
-    latest: published.filter((post) => !post.featured).slice(0, 12)
+    featured: published.filter((post) => post.featured).slice(0, 1),
+    latest: published.filter((post) => !post.featured).slice(0, 3)
   };
 }
 
