@@ -125,6 +125,7 @@ button, input, select, textarea { font: inherit; }
   .public-stage { width:calc(100% - (var(--public-mobile-gap) * 2)); }
   .home-layout { grid-template-columns:1fr; gap:var(--public-mobile-gap); padding:20px 0 48px; }
   .profile-sidebar { position:static; gap:var(--public-mobile-gap); }
+  .profile-avatar-link { width:min(160px,48vw); margin:0 auto; }
   .profile-named-links { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .featured-section .post-card.is-featured { grid-template-columns:1fr; }
   .home-latest-item { grid-template-columns:72px minmax(0,1fr); gap:12px; padding:17px 2px; }

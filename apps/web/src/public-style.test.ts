@@ -39,6 +39,7 @@ describe("Fuwari public visual system", () => {
     assert.match(mobile, /\.site-header nav\s*\{[^}]*overflow-x:\s*auto/s);
     assert.doesNotMatch(mobile, /\.site-header nav\s*\{[^}]*display:\s*none/s);
     assert.match(mobile, /backdrop-filter:\s*none/);
+    assert.match(mobile, /\.profile-avatar-link\s*\{[^}]*width:\s*min\(160px,\s*48vw\)[^}]*margin:\s*0\s+auto/s);
     assert.match(mobile, /\.profile-named-links\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
     assert.match(mobile, /\.featured-section\s+\.post-card\.is-featured\s*\{[^}]*grid-template-columns:\s*1fr/s);
     assert.match(mobile, /\.home-latest-item\s*\{[^}]*grid-template-columns:\s*72px\s+minmax\(0,\s*1fr\)/s);
