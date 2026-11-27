@@ -4,7 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { Gallery } from "./Gallery";
 
 export function createEditorExtensions({ openLinksOnClick }: { openLinksOnClick: boolean }) {
-  return [StarterKit, Image, Gallery, Link.configure({ openOnClick: openLinksOnClick })];
+  return [StarterKit.configure({ link: false }), Image, Gallery, Link.configure({ openOnClick: openLinksOnClick })];
 }
 
 export function createIntroEditorExtensions({ openLinksOnClick }: { openLinksOnClick: boolean }) {

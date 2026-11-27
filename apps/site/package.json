@@ -1,0 +1,19 @@
+{
+  "name": "@sunny/site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "sync": "node scripts/sync.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "5.0.7",
+    "@sunny/shared": "1.0.0",
+    "@tiptap/static-renderer": "3.29.2",
+    "astro": "6.4.8",
+    "sharp": "^0.34.5"
+  }
+}

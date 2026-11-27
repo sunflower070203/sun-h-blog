@@ -1,0 +1,14 @@
+---
+import { StaticRichDocument } from "../components/StaticRichDocument";
+import PublicLayout from "../layouts/PublicLayout.astro";
+import { hasAboutContent } from "../../../web/src/pages/AboutPage";
+import { snapshot } from "../content";
+
+const profile = snapshot.profile;
+---
+<PublicLayout title={"个人介绍 · " + profile.displayName} description={profile.bio}>
+  <main class="section-page about-page">
+    {hasAboutContent(profile.aboutContent) ? <StaticRichDocument content={profile.aboutContent} />
+      : <p class="empty-state">个人介绍尚未填写。</p>}
+  </main>
+</PublicLayout>

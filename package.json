@@ -8,7 +8,9 @@
   ],
   "scripts": {
     "dev": "concurrently -n api,web -c blue,cyan \"npm run dev -w @sunny/api\" \"npm run dev -w @sunny/web\"",
-    "build": "npm run build -w @sunny/shared && npm run build -w @sunny/api && npm run build -w @sunny/web",
+    "build": "npm run build -w @sunny/shared && npm run build -w @sunny/api && npm run build -w @sunny/web && npm run build -w @sunny/site",
+    "pretest": "npm run build -w @sunny/shared",
+    "posttest": "npm run test -w @sunny/site",
     "test": "node --experimental-strip-types packages/shared/src/index.test.ts && node apps/api/src/test-runtime.cjs apps/web/src/rich-document.test.tsx && node apps/api/src/test-runtime.cjs apps/web/src/components/ProfileLinkIcon.test.tsx && node --experimental-strip-types apps/web/src/appearance.test.ts && node --experimental-strip-types apps/web/src/admin/admin-css.test.ts && node --experimental-strip-types apps/web/src/public-style.test.ts && node --experimental-strip-types apps/web/src/public-home.test.ts && node --experimental-strip-types apps/web/src/home-data.test.ts && node apps/api/src/test-runtime.cjs apps/web/src/home-view.test.tsx && node --experimental-strip-types apps/web/src/admin/profile-form.test.ts && node --experimental-strip-types apps/web/src/admin/editor/markdown.test.ts && node --experimental-strip-types apps/web/src/admin/editor/uploads.test.ts && node --experimental-strip-types apps/api/src/auth.test.ts && node --experimental-strip-types apps/api/src/services/posts.test.ts && node --experimental-strip-types apps/api/src/services/media.test.ts && node --experimental-strip-types apps/api/src/services/settings.test.ts && node apps/api/src/test-runtime.cjs apps/api/src/routes/settings.test.ts",
     "typecheck": "npm run build -w @sunny/shared && npm run typecheck -w @sunny/api && npm run typecheck -w @sunny/web",
     "db:generate": "npm run db:generate -w @sunny/api",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "cookie": "1.1.1",
     "typescript": "^5.9.3",
     "yaml": "^2.9.0"
   }
