@@ -24,7 +24,8 @@ Markdown 模式支持标题、段落、粗体、斜体、链接、图片、引�
 ## 目录
 
 ```text
-apps/web        React + Vite 前台与管理后台
+apps/site       Astro 访客页面与静态发布
+apps/web        React + Vite 管理后台及共用页面样式
 apps/api        Fastify API、认证、数据库和图片上传
 packages/shared 前后端共享类型与验证
 deploy          Nginx 配置
@@ -32,7 +33,7 @@ deploy          Nginx 配置
 
 ## 本地开发
 
-要求 Node.js 22、Docker Desktop。
+要求 Node.js 22.19 或更新的 22 LTS 版本，以及 Docker Desktop。
 
 ```bash
 cp .env.example .env
@@ -43,8 +44,10 @@ npm run db:migrate
 npm run dev
 ```
 
-前台默认地址：`http://localhost:5173`  
-API 默认地址：`http://localhost:3001`
+- 管理后台开发地址为 `http://localhost:5173/admin`
+- API 默认地址为 `http://localhost:3001`
+
+运行 `npm run dev -w @sunny/site` 可预览 Astro 页面。默认使用空内容，设置 `SUNNY_SITE_SNAPSHOT` 为本地公开内容快照路径可预览实际资料。`npm test` 会从测试资料构建静态站点，并检查中文文章地址、富文本、图集和草稿隔离。
 
 首次创建管理员：
 
@@ -104,7 +107,9 @@ git pull
 docker compose up -d --build
 ```
 
-数据库迁移会在 API 容器启动时自动运行。
+数据库迁移会在 API 容器启动时自动运行。更新已有安装时沿用原来的 Compose 项目名，以便继续使用原 PostgreSQL 和媒体卷。
+
+`public-site` 从现有公开 API 读取已发布文章、公开资料和外观设置，内容有变化时重新生成 HTML。Nginx 在新一版完整生成后切换目录。文章撤回后，详情校验立即停止提供正文，首页与归档会在下一次生成后更新。生成目录可重建，备份仍以 PostgreSQL 和媒体卷为准。
 
 ## 备份
 

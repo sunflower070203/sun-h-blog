@@ -27,7 +27,17 @@ export function PublicAppearancePage() {
     api.getAdminAppearance().then((value) => { setAppearance(value); setMessage(""); })
       .catch((reason) => reason.message === "请先登录" ? navigate("/admin/login") : setMessage(reason.message));
   }, [navigate]);
-  useEffect(() => { if (appearance) frame.current?.contentWindow?.postMessage({ type: "sunny:appearance-preview", appearance }, location.origin); }, [appearance]);
+  useEffect(() => {
+    if (!appearance) return;
+    const sendPreview = () => frame.current?.contentWindow?.postMessage({ type: "sunny:appearance-preview", appearance }, location.origin);
+    const receiveReady = (event: MessageEvent) => {
+      if (event.origin === location.origin && event.source === frame.current?.contentWindow
+          && event.data?.type === "sunny:appearance-preview-ready") sendPreview();
+    };
+    window.addEventListener("message", receiveReady);
+    sendPreview();
+    return () => window.removeEventListener("message", receiveReady);
+  }, [appearance]);
 
   function updateToken(key: NumericToken, value: number) {
     setAppearance((current) => current && ({ ...current, publicDesignTokens: { ...current.publicDesignTokens, [key]: value } }));

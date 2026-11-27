@@ -1,0 +1,93 @@
+---
+import { Image } from "astro:assets";
+import { appearanceStyle } from "../../../web/src/appearance";
+import "../../../web/src/styles.css";
+import sailboat from "../../../web/public/sailboat.png";
+import { snapshot } from "../content";
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+  missing?: boolean;
+}
+
+const { title, description, canonicalPath, missing } = Astro.props;
+const { appearance } = snapshot;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const menu = [
+  { href: "/", label: "首页" },
+  { href: "/research", label: "科研学习" },
+  { href: "/life", label: "日常生活" },
+  { href: "/about", label: "个人介绍" },
+];
+const canonical = new URL(canonicalPath ?? path, Astro.site);
+// CSS values must stay inside the raw-text style element.
+const customCss = appearance.publicCustomCss.replace(/<(?=\/style[\s/>])/gi, "\\3c ");
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#061b2a" />
+    <meta name="description" content={description || "Sunny 的个人博客：科研、学习与生活。"} />
+    {missing ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="public-layout" data-color-mode={appearance.publicColorMode === "dark" ? "dark" : "light"}
+      data-default-mode={appearance.publicColorMode} style={appearanceStyle(appearance)}>
+      <script is:inline>
+        (() => {
+          const layout = document.currentScript.parentElement;
+          let mode;
+          try { mode = localStorage.getItem("sunny-color-mode"); } catch {}
+          layout.dataset.colorMode = mode === "dark" || mode === "light" ? mode
+            : layout.dataset.defaultMode === "system"
+              ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+              : layout.dataset.defaultMode;
+        })();
+      </script>
+      <div class="public-banner">
+        {appearance.publicBannerUrl === "/sailboat.png" ? (
+          <Image src={sailboat} widths={[640, 1024, 1536]} sizes="100vw" format="webp"
+            alt="" loading="eager" fetchpriority="high" decoding="async" />
+        ) : appearance.publicBannerUrl && (
+          <img src={appearance.publicBannerUrl} alt="" fetchpriority="high" decoding="async" />
+        )}
+      </div>
+      <header class="site-header">
+        <a class="brand" href="/">Sunny</a>
+        <nav aria-label="主要导航">
+          {menu.map(({ href, label }) => (
+            <a href={href} class:list={{ active: path === href }}
+              aria-current={path === href ? "page" : undefined}>{label}</a>
+          ))}
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="切换到暗色模式">☾</button>
+      </header>
+      <div class="public-stage"><slot /></div>
+      <style is:inline id="public-custom-css" set:html={customCss}></style>
+    </div>
+    <script>
+      const layout = document.querySelector<HTMLElement>(".public-layout")!;
+      const button = layout.querySelector<HTMLButtonElement>(".theme-toggle")!;
+      const updateToggle = () => {
+        const dark = layout.dataset.colorMode === "dark";
+        button.textContent = dark ? "☀" : "☾";
+        button.setAttribute("aria-label", dark ? "切换到亮色模式" : "切换到暗色模式");
+      };
+      button.addEventListener("click", () => {
+        const mode = layout.dataset.colorMode === "dark" ? "light" : "dark";
+        layout.dataset.colorMode = mode;
+        try { localStorage.setItem("sunny-color-mode", mode); } catch {}
+        updateToggle();
+      });
+      updateToggle();
+      if (window.parent !== window && new URLSearchParams(location.search).has("appearance-preview")) {
+        void import("../scripts/appearance-preview").then(({ enablePreview }) => enablePreview(layout, updateToggle));
+      }
+    </script>
+  </body>
+</html>

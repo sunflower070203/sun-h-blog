@@ -1,0 +1,40 @@
+---
+import { StaticPostCard } from "../../components/ExistingViews";
+import PublicLayout from "../../layouts/PublicLayout.astro";
+import { snapshot } from "../../content";
+---
+<PublicLayout title="文章与笔记 · Sunny">
+  <main class="inner-page">
+    <div class="page-title"><p class="section-label">Notes &amp; essays</p><h1>文章与笔记</h1><p>科研记录、课程学习与少量生活观察。</p></div>
+    {snapshot.posts.length ? (
+      <>
+        <label class="search"><span>搜索文章</span><input type="search" id="post-search" placeholder="输入标题或摘要关键词" /></label>
+        <div class="post-grid">
+          {snapshot.posts.map((post) => (
+            <div data-search-title={post.title} data-search-excerpt={post.excerpt}><StaticPostCard post={post} /></div>
+          ))}
+        </div>
+        <p class="empty-state" id="post-search-empty" hidden>没有符合条件的文章。</p>
+      </>
+    ) : <p class="empty-state">暂无已发布文章。</p>}
+  </main>
+</PublicLayout>
+<script>
+  const input = document.querySelector<HTMLInputElement>("#post-search");
+  const empty = document.querySelector<HTMLElement>("#post-search-empty");
+  const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-search-title]"));
+  if (input && empty) {
+    const filter = () => {
+      const query = input.value.trim().toLowerCase();
+      let found = false;
+      for (const card of cards) {
+        const { searchTitle = "", searchExcerpt = "" } = card.dataset;
+        card.hidden = !searchTitle.toLowerCase().includes(query) && !searchExcerpt.toLowerCase().includes(query);
+        found ||= !card.hidden;
+      }
+      empty.hidden = found;
+    };
+    input.addEventListener("input", filter);
+    filter();
+  }
+</script>

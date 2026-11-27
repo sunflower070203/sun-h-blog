@@ -6,7 +6,7 @@ export function PostCard({ post, featured = false }: { post: PostSummary; featur
   return (
     <article className={`post-card fuwari-card ${featured ? "is-featured" : ""}`}>
       <Link className={`post-cover ${post.coverUrl ? "" : "is-placeholder"}`} to={`/posts/${post.slug}`} aria-label={post.title}>
-        {post.coverUrl && <img src={post.coverUrl} alt={post.coverAlt} />}
+        {post.coverUrl && <img src={post.coverUrl} alt={post.coverAlt} loading="lazy" decoding="async" />}
       </Link>
       <div className="post-card-body">
       {post.tags.includes("项目") && <span className="project-badge">项目</span>}

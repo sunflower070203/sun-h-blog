@@ -1,0 +1,22 @@
+---
+import { StaticPostCard } from "../components/ExistingViews";
+import PublicLayout from "../layouts/PublicLayout.astro";
+import { snapshot } from "../content";
+
+export function getStaticPaths() {
+  return [
+    { params: { section: "research" }, props: { title: "科研学习" } },
+    { params: { section: "life" }, props: { title: "日常生活" } },
+  ];
+}
+
+const { title } = Astro.props;
+const posts = snapshot.posts.filter((post) => post.category === title);
+---
+<PublicLayout title={title + " · Sunny"}>
+  <main class="section-page">
+    <header class="page-title"><p class="section-label">Archive</p><h1>{title}</h1></header>
+    {posts.length ? <div class="post-grid">{posts.map((post) => <StaticPostCard post={post} />)}</div>
+      : <p class="empty-state">这里还没有文章。</p>}
+  </main>
+</PublicLayout>

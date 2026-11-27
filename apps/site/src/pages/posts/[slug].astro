@@ -1,0 +1,25 @@
+---
+import type { PostDetail } from "@sunny/shared";
+import { StaticRichDocument } from "../../components/StaticRichDocument";
+import PublicLayout from "../../layouts/PublicLayout.astro";
+import { articlePath, snapshot } from "../../content";
+
+export function getStaticPaths() {
+  return snapshot.posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+interface Props { post: PostDetail }
+const { post } = Astro.props;
+---
+<PublicLayout title={post.title + " · Sunny"} description={post.excerpt} canonicalPath={articlePath(post.slug)}>
+  <main class="article-page">
+    <header class="article-header">
+      <p class="section-label">{post.category}</p>
+      <h1>{post.title}</h1>
+      <p>{post.excerpt}</p>
+      <div class="tags">{post.tags.map((tag) => <span>#{tag}</span>)}</div>
+    </header>
+    {post.coverUrl && <img class="article-cover" src={post.coverUrl} alt={post.coverAlt} loading="lazy" decoding="async" />}
+    <StaticRichDocument content={post.content} />
+  </main>
+</PublicLayout>

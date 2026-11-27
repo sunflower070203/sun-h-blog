@@ -32,6 +32,24 @@ services:
       timeout: 5s
       retries: 10
 
+  public-site:
+    build:
+      context: .
+      dockerfile: apps/site/Dockerfile
+    restart: unless-stopped
+    environment:
+      SUNNY_API_ORIGIN: http://api:3001
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - public_site_data:/site-output
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -s /tmp/sunny-site-ready && test -s /site-output/current/index.html"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
   web:
     build:
       context: .
@@ -40,11 +58,15 @@ services:
     depends_on:
       api:
         condition: service_healthy
+      public-site:
+        condition: service_healthy
     ports:
       - "${BLOG_PORT:-8080}:80"
     volumes:
       - media_data:/usr/share/nginx/media:ro
+      - public_site_data:/var/www/sunny-public:ro
 
 volumes:
   postgres_data:
   media_data:
+  public_site_data:
