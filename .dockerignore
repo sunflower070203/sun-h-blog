@@ -1,6 +1,7 @@
 node_modules
 **/dist
 **/.astro
+**/.astro-release-*
 .git
 .env
 data
