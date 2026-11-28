@@ -7,6 +7,13 @@ const { profile } = snapshot;
 const links = profile.links.slice(0, 4);
 ---
 <main class="moon-home">
+  <p class="moon-motto" data-moon-motto>
+    <span class="moon-motto-lines">
+      <span lang="zh-CN">我相信美好的事情每天都在发生 🌻</span>
+      <span lang="en">I Believe Good Things Happen Everyday.</span>
+    </span>
+    <span class="moon-motto-typing" aria-hidden="true"></span>
+  </p>
   <aside class="moon-profile" aria-labelledby="home-name">
     <div class="profile-card-public fuwari-card">
       <a class="profile-avatar-link" href="/about" aria-label="查看关于">
@@ -37,6 +44,47 @@ const links = profile.links.slice(0, 4);
 </main>
 
 <script>
+  const motto = document.querySelector<HTMLElement>("[data-moon-motto]");
+  const typed = motto?.querySelector<HTMLElement>(".moon-motto-typing");
+  if (motto && typed) {
+    const phrases = Array.from(motto.querySelectorAll<HTMLElement>(".moon-motto-lines > span"), (line) => ({
+      lang: line.lang,
+      letters: Array.from(line.textContent?.trim() ?? ""),
+    }));
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let phraseIndex = 0;
+    let length = 0;
+    let timer: number | undefined;
+
+    function typeNext() {
+      const phrase = phrases[phraseIndex];
+      length += 1;
+      typed!.lang = phrase.lang;
+      typed!.textContent = phrase.letters.slice(0, length).join("");
+      const done = length === phrase.letters.length;
+      if (done) {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        length = 0;
+      }
+      timer = window.setTimeout(typeNext, done ? 2400 : phrase.lang === "en" ? 52 : 98);
+    }
+
+    function syncTyping() {
+      window.clearTimeout(timer);
+      if (reducedMotion.matches) {
+        delete motto!.dataset.typing;
+        return;
+      }
+      if (document.hidden) return;
+      motto!.dataset.typing = "";
+      typeNext();
+    }
+
+    reducedMotion.addEventListener("change", syncTyping);
+    document.addEventListener("visibilitychange", syncTyping);
+    syncTyping();
+  }
+
   const scroller = document.querySelector<HTMLElement>(".moon-scroll");
   if (scroller) {
     const desktop = matchMedia("(min-width: 761px) and (min-height: 580px)");

@@ -30,7 +30,8 @@ test("the homepage, archive and rich posts ship complete HTML", async () => {
   assert.match(home, /Wireless Communication &amp; Machine Learning/);
   assert.match(home, /mailto:sunnyhao0203@gmail\.com/);
   assert.match(home, /profile-wordcloud/);
-  assert.match(home, /profile-most-used-languages/);
+  assert.doesNotMatch(home, /profile-most-used-languages|readme-typing-svg/);
+  assert.match(home, /class="moon-motto"[^>]*>[\s\S]*我相信美好的事情每天都在发生[\s\S]*I Believe Good Things Happen Everyday\.[\s\S]*<aside class="moon-profile"/);
   assert.match(home, /class="moon-wallpaper" data-default-wallpaper="\/_astro\/moon\.[^"]+\.webp"/);
   assert.match(home, /<h2 id="home-introduction">个人介绍<\/h2>/);
   assert.match(home, /class="profile-avatar profile-avatar-placeholder"/);
