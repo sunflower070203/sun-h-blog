@@ -55,7 +55,7 @@
 
 .moon-theme .public-stage { flex: 1; }
 .moon-theme .profile-card-public,
-.moon-theme .moon-about,
+.moon-theme .moon-introduction,
 .moon-theme .fuwari-card,
 .moon-theme .page-title,
 .moon-theme .search {
@@ -68,7 +68,7 @@
 }
 
 .moon-theme .profile-card-public,
-.moon-theme .moon-about { backdrop-filter: blur(3px); }
+.moon-theme .moon-introduction { backdrop-filter: blur(3px); }
 .moon-theme .post-card:hover .post-cover img { transform: none; }
 .moon-theme .post-cover.is-placeholder { background: rgb(var(--card), .18); }
 .moon-theme .post-cover.is-placeholder::after { content: ""; }
@@ -95,16 +95,15 @@
 
 .moon-home {
   display: grid;
-  grid-template-columns: minmax(180px, 252px) minmax(0, 548px);
-  justify-content: space-between;
+  grid-template-columns: clamp(185px, 23vw, 252px) minmax(0, 1fr);
   align-items: start;
-  gap: clamp(20px, 5vw, 64px);
-  max-width: 1120px;
+  gap: clamp(18px, 2.25vw, 32px);
+  max-width: 928px;
   margin-inline: auto;
   padding: clamp(28px, 13dvh, 130px) 0 22px;
 }
 
-.moon-profile { min-width: 0; margin-top: clamp(0px, 7dvh, 65px); }
+.moon-profile { min-width: 0; margin-top: clamp(0px, 3dvh, 26px); }
 .moon-profile .profile-card-public { padding: 15px 15px 17px; }
 .moon-profile .profile-avatar-link { border-radius: 12px; }
 .moon-profile .profile-avatar { display: grid; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
@@ -132,22 +131,76 @@
 
 .moon-scroll { min-width: 0; }
 .moon-scroll:focus-visible { outline-offset: -3px; border-radius: 20px; }
-.moon-scroll .home-section { margin-top: 28px; }
-.moon-scroll .section-heading { padding: 6px 8px; }
-.moon-about {
-  min-height: min(440px, 56dvh);
-  padding: clamp(22px, 4vw, 45px);
+.moon-introduction {
+  padding: clamp(22px, 3.8vw, 43px);
   overflow-wrap: anywhere;
 }
-.moon-about h2#home-about {
-  margin: 0 0 18px;
-  font: 700 clamp(34px, 5vw, 56px)/1.12 Georgia, "Songti SC", SimSun, serif;
+
+.moon-introduction h2 {
+  margin: 0 0 14px;
+  font: 700 clamp(34px, 5vw, 50px)/1.12 Georgia, "Songti SC", SimSun, serif;
 }
-.moon-about .prose { font-size: var(--public-body-size); }
-.moon-about .prose :first-child { margin-top: 0; }
-.moon-about .prose .tiptap > h1 { margin-bottom: .55em; font-size: 1.6em; }
-.moon-about .prose .tiptap > h2 { font-size: 1.35em; }
-.moon-about .prose a { text-decoration: underline; }
+
+.intro-motto {
+  margin: 0 0 20px;
+  font-weight: 600;
+}
+.intro-motto span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font: 1rem/1.45 Georgia, serif;
+}
+
+.intro-visuals {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.intro-visuals img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 9px;
+}
+.intro-visuals img:first-child { background: rgb(247 253 254 / .85); }
+
+.intro-language {
+  border-top: 1px solid var(--line);
+}
+.intro-language summary {
+  padding: 8px 2px;
+  min-height: 36px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.intro-language dl {
+  margin: 2px 0 15px;
+  font-size: .91rem;
+}
+.intro-language dl > div {
+  display: grid;
+  grid-template-columns: minmax(6em, max-content) minmax(0, 1fr);
+  gap: 10px;
+}
+.intro-language dt { font-weight: 650; }
+.intro-language dd { margin: 0; }
+
+.intro-contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  padding: 12px 2px 0;
+  border-top: 1px solid var(--line);
+}
+.intro-contact h3 { margin: 0; font-size: .94rem; }
+.intro-contact a { font-size: .88rem; text-decoration: underline; text-underline-offset: .2em; }
+@media (max-width: 405px) {
+  .intro-visuals { grid-template-columns: minmax(0, 1fr); }
+}
 
 @media (min-width: 761px) and (min-height: 580px) {
   .moon-theme[data-home] { height: 100dvh; }
@@ -174,19 +227,18 @@
 @media (max-width: 760px), (max-height: 579px) {
   .moon-home { max-width: 580px; grid-template-columns: minmax(0, 1fr); padding: 15dvh 0 28px; }
   .moon-profile { margin-top: 0; width: min(240px, 100%); justify-self: center; }
-  .moon-about { min-height: 0; }
 }
 
 @media (max-width: 760px) {
   .moon-theme .site-header { margin-top: 8px; }
   .moon-theme .site-header nav a::after { bottom: -2px; }
   .moon-theme .profile-card-public,
-  .moon-theme .moon-about { backdrop-filter: none; }
+  .moon-theme .moon-introduction { backdrop-filter: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .moon-theme { --moon-glass: var(--moon-reading); }
   .moon-theme .profile-card-public,
-  .moon-theme .moon-about,
+  .moon-theme .moon-introduction,
   .moon-theme .site-header { backdrop-filter: none; }
 }

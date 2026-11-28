@@ -25,9 +25,14 @@ test("the homepage, archive and rich posts ship complete HTML", async () => {
     html("posts/research-note/index.html"), html("404.html")
   ]);
   assert.match(home, /Test Sunny/);
-  assert.match(home, /Research note/);
+  assert.doesNotMatch(home, /Research note|置顶内容|最新文章|Existing biography|contribution-grid-snake|Platane\/snk/);
+  assert.match(home, /东南大学/);
+  assert.match(home, /Wireless Communication &amp; Machine Learning/);
+  assert.match(home, /mailto:sunnyhao0203@gmail\.com/);
+  assert.match(home, /profile-wordcloud/);
+  assert.match(home, /profile-most-used-languages/);
   assert.match(home, /class="moon-wallpaper" data-default-wallpaper="\/_astro\/moon\.[^"]+\.webp"/);
-  assert.match(home, /<h2 id="home-about">关于<\/h2>/);
+  assert.match(home, /<h2 id="home-introduction">个人介绍<\/h2>/);
   assert.match(home, /class="profile-avatar profile-avatar-placeholder"/);
   assert.doesNotMatch(home, /class="profile-bio"/);
   assert.match(about, /<title>关于 · Test Sunny<\/title>/);
@@ -42,6 +47,7 @@ test("the homepage, archive and rich posts ship complete HTML", async () => {
   assert.match(archive, /Research note/);
   assert.match(about, /Existing biography/);
   assert.match(about, /Older content/);
+  assert.doesNotMatch(about, /id="home-introduction"|Wireless Communication &amp; Machine Learning/);
   assert.match(home, /@media \(width < 600px\)/);
   assert.match(post, /<strong>Complete static article<\/strong>/);
   assert.match(post, /class="image-gallery"/);

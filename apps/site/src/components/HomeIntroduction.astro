@@ -1,0 +1,53 @@
+---
+import wordcloud from "../assets/profile-wordcloud.webp";
+import languages from "../assets/profile-most-used-languages.webp";
+
+// Based on the README in sunflower070203/sunflower070203.
+const introductions = [
+  {
+    lang: "zh-CN",
+    label: "中文",
+    points: [
+      ["学习背景", "东南大学（SEU） · 信息工程"],
+      ["当前重心", "无线通信、机器学习"],
+      ["研究兴趣", "AI 开发与应用"],
+    ],
+  },
+  {
+    lang: "en",
+    label: "English",
+    points: [
+      ["Education", "Southeast University (SEU) — Information Engineering"],
+      ["Current focus", "Wireless Communication & Machine Learning"],
+      ["Research interests", "AI development & applications"],
+    ],
+  },
+];
+---
+<section class="moon-introduction fuwari-card" aria-labelledby="home-introduction">
+  <h2 id="home-introduction">个人介绍</h2>
+  <p class="intro-motto">我相信美好的事情每天都在发生 🌻 <span lang="en">I Believe Good Things Happen Everyday.</span></p>
+
+  <div class="intro-visuals">
+    <img src={wordcloud.src} width={wordcloud.width} height={wordcloud.height} alt="兴趣词云，AI 和无线通信" decoding="async" />
+    <img src={languages.src} width={languages.width} height={languages.height} alt="GitHub 提交中最常用的编程语言分布" decoding="async" />
+  </div>
+
+  {introductions.map(({ lang, label, points }) => (
+    <details class="intro-language" name="intro-language" lang={lang} open={lang === "zh-CN"}>
+      <summary>{label}</summary>
+      <dl>
+        {points.map(([label, value]) => (
+          <div><dt>{label}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
+    </details>
+  ))}
+
+  <div class="intro-contact">
+    <h3>联系方式</h3>
+    <a href="https://github.com/sunflower070203">GitHub</a>
+    <a href="mailto:sunnyhao0203@gmail.com">邮件</a>
+    <a href="https://www.sun-h-blog.cn">博客</a>
+  </div>
+</section>
