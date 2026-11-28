@@ -26,7 +26,18 @@ test("the homepage, archive and rich posts ship complete HTML", async () => {
   ]);
   assert.match(home, /Test Sunny/);
   assert.match(home, /Research note/);
-  assert.match(home, /\/sailboat/);
+  assert.match(home, /class="moon-wallpaper" data-default-wallpaper="\/_astro\/moon\.[^"]+\.webp"/);
+  assert.match(home, /<h2 id="home-about">关于<\/h2>/);
+  assert.match(home, /class="profile-avatar profile-avatar-placeholder"/);
+  assert.doesNotMatch(home, /class="profile-bio"/);
+  assert.match(about, /<title>关于 · Test Sunny<\/title>/);
+  assert.match(archive, /class="post-card fuwari-card/);
+  assert.match(post, /class="article-page article-reading"/);
+  for (const page of [home, archive, about, post]) {
+    assert.match(page, /晋ICP备2026010770号/);
+    assert.match(page, /苏公网安备32011502014222号/);
+    assert.match(page, /<a href="\/about"[^>]*>关于<\/a>/);
+  }
   assert.match(archive, /搜索文章/);
   assert.match(archive, /Research note/);
   assert.match(about, /Existing biography/);

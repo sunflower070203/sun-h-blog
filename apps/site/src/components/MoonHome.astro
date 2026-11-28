@@ -1,0 +1,91 @@
+---
+import { snapshot } from "../content";
+import { StaticPostCard } from "./ExistingViews";
+import { StaticRichDocument } from "./StaticRichDocument";
+import { ProfileLinkIcon } from "../../../web/src/components/ProfileLinkIcon";
+import { selectHomeFeed } from "../../../web/src/home-data";
+import { hasAboutContent } from "../../../web/src/pages/AboutPage";
+
+const { profile, posts } = snapshot;
+const { featured, latest } = selectHomeFeed(posts);
+const links = profile.links.slice(0, 4);
+---
+<main class="moon-home">
+  <aside class="moon-profile" aria-labelledby="home-name">
+    <div class="profile-card-public fuwari-card">
+      <a class="profile-avatar-link" href="/about" aria-label="查看关于">
+        {profile.avatarUrl ? (
+          <img class="profile-avatar" src={profile.avatarUrl} alt={profile.displayName} width="220" height="220" />
+        ) : (
+          <span class="profile-avatar profile-avatar-placeholder" aria-hidden="true">{profile.displayName.slice(0, 1).toUpperCase()}</span>
+        )}
+      </a>
+      <h1 id="home-name">{profile.displayName}</h1>
+      <span class="profile-accent" aria-hidden="true"></span>
+      {links.length > 0 && (
+        <nav class="profile-named-links" aria-label="社交账号">
+          {links.map((link) => (
+            <a class="profile-named-link" href={link.url} target="_blank" rel="noopener noreferrer">
+              <ProfileLinkIcon icon={link.icon} />
+              <span>{link.title}</span>
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  </aside>
+
+  <div class="moon-scroll" tabindex="0" role="region" aria-labelledby="home-about">
+    <section class="moon-about fuwari-card" aria-labelledby="home-about">
+      <h2 id="home-about">关于</h2>
+      {hasAboutContent(profile.aboutContent) ? (
+        <StaticRichDocument content={profile.aboutContent} />
+      ) : (
+        <p>{profile.bio || "欢迎来到 Sunny 的博客。"}</p>
+      )}
+    </section>
+
+    {featured.length > 0 && (
+      <section class="home-section featured-section">
+        <header class="section-heading"><h2>置顶内容</h2></header>
+        {featured.map((post) => <StaticPostCard post={post} />)}
+      </section>
+    )}
+    <section class="home-section">
+      <header class="section-heading"><h2>最新文章</h2><a href="/posts">全部文章 →</a></header>
+      {latest.length > 0 ? (
+        <div class="post-grid">{latest.map((post) => <StaticPostCard post={post} />)}</div>
+      ) : <p class="empty-state fuwari-card">暂无其他文章。</p>}
+    </section>
+  </div>
+</main>
+
+<script>
+  const scroller = document.querySelector<HTMLElement>(".moon-scroll");
+  if (scroller) {
+    const desktop = matchMedia("(min-width: 761px) and (min-height: 580px)");
+    let drag: { id: number; y: number; top: number } | undefined;
+
+    scroller.addEventListener("pointerdown", (event) => {
+      if (!desktop.matches || event.pointerType !== "mouse" || event.button !== 0 || event.altKey) return;
+      if (!(event.target instanceof Element) || event.target.closest("a, button, input, textarea, select, summary")) return;
+      if (scroller.scrollHeight <= scroller.clientHeight) return;
+      if (event.clientX >= scroller.getBoundingClientRect().left + scroller.clientWidth) return;
+      drag = { id: event.pointerId, y: event.clientY, top: scroller.scrollTop };
+      event.preventDefault();
+      scroller.focus({ preventScroll: true });
+      scroller.setPointerCapture(event.pointerId);
+      scroller.classList.add("dragging");
+    });
+    scroller.addEventListener("pointermove", (event) => {
+      if (drag?.id === event.pointerId) scroller.scrollTop = drag.top + drag.y - event.clientY;
+    });
+    function endDrag() {
+      drag = undefined;
+      scroller?.classList.remove("dragging");
+    }
+    scroller.addEventListener("lostpointercapture", endDrag);
+    scroller.addEventListener("pointerup", endDrag);
+    scroller.addEventListener("pointercancel", endDrag);
+  }
+</script>

@@ -2,7 +2,7 @@ import type { PublicAppearance } from "@sunny/shared";
 import { appearanceStyle, resolveColorMode } from "../../../web/src/appearance";
 
 export function enablePreview(layout: HTMLElement, updateToggle: () => void) {
-  const banner = layout.querySelector<HTMLElement>(".public-banner")!;
+  const banner = layout.querySelector<HTMLElement>(".moon-wallpaper")!;
   const style = document.querySelector<HTMLStyleElement>("#public-custom-css")!;
   window.addEventListener("message", (event: MessageEvent) => {
     if (event.origin !== location.origin || event.source !== window.parent
@@ -14,8 +14,10 @@ export function enablePreview(layout: HTMLElement, updateToggle: () => void) {
     }
     const image = document.createElement("img");
     image.alt = "";
-    if (appearance.publicBannerUrl) image.src = appearance.publicBannerUrl;
-    banner.replaceChildren(...(appearance.publicBannerUrl ? [image] : []));
+    const customUrl = appearance.publicBannerUrl === "/sailboat.png" ? null : appearance.publicBannerUrl;
+    image.src = customUrl || banner.dataset.defaultWallpaper!;
+    if (customUrl) image.className = "custom-wallpaper";
+    banner.replaceChildren(image);
     style.textContent = appearance.publicCustomCss;
     const stored = localStorage.getItem("sunny-color-mode");
     const visitor = stored === "dark" || stored === "light" ? stored : null;

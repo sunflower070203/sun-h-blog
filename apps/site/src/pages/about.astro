@@ -6,9 +6,9 @@ import { snapshot } from "../content";
 
 const profile = snapshot.profile;
 ---
-<PublicLayout title={"个人介绍 · " + profile.displayName} description={profile.bio}>
+<PublicLayout title={"关于 · " + profile.displayName} description={profile.bio}>
   <main class="section-page about-page">
     {hasAboutContent(profile.aboutContent) ? <StaticRichDocument content={profile.aboutContent} />
-      : <p class="empty-state">个人介绍尚未填写。</p>}
+      : <p class="empty-state">关于页面尚未填写。</p>}
   </main>
 </PublicLayout>

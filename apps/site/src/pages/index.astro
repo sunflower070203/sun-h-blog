@@ -1,8 +1,8 @@
 ---
-import { StaticHome } from "../components/ExistingViews";
+import MoonHome from "../components/MoonHome.astro";
 import PublicLayout from "../layouts/PublicLayout.astro";
 import { snapshot } from "../content";
 ---
 <PublicLayout title={"Sunny — Research, Learning & Life"} description={snapshot.profile.bio}>
-  <StaticHome posts={snapshot.posts} profile={snapshot.profile} />
+  <MoonHome />
 </PublicLayout>
